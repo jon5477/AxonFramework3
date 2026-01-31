@@ -20,9 +20,9 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.AbstractSequencedDomainEventEntry;
 import org.axonframework.serialization.Serializer;
 
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 
 /**
  * @author Allard Buijze

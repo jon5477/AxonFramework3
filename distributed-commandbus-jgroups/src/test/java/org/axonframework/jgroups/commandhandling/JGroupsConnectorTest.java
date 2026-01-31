@@ -33,6 +33,7 @@ import org.axonframework.serialization.SerializationException;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.xml.XStreamSerializer;
 import org.jgroups.Address;
+import org.jgroups.BytesMessage;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.stack.IpAddress;
@@ -218,7 +219,7 @@ public class JGroupsConnectorTest {
         waitForConnectorSync();
 
         // secretly insert an illegal message
-        Message message = new Message(channel1.getAddress(),
+        Message message = new BytesMessage(channel1.getAddress(),
                                       new JoinMessage(10, DenyAll.INSTANCE, 0, true));
         message.setSrc(new IpAddress(12345));
         channel1.getReceiver().receive(message);

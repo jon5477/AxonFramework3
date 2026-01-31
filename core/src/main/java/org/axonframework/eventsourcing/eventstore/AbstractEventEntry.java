@@ -19,10 +19,10 @@ import org.axonframework.common.DateTimeUtils;
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.serialization.*;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Lob;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
+import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
 import java.time.temporal.TemporalAccessor;
 

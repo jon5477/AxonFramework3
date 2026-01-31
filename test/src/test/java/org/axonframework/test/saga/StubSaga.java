@@ -28,7 +28,7 @@ import org.axonframework.eventhandling.scheduling.EventScheduler;
 import org.axonframework.eventhandling.scheduling.ScheduleToken;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

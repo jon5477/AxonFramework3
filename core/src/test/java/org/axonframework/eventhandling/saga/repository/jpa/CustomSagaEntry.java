@@ -18,7 +18,7 @@ package org.axonframework.eventhandling.saga.repository.jpa;
 
 import org.axonframework.serialization.Serializer;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 /**
  * A custom {@link SagaEntry} to declare a different serializartion type.

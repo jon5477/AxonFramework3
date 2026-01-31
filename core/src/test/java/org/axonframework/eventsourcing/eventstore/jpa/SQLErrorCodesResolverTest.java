@@ -20,7 +20,7 @@ import org.axonframework.common.AxonConfigurationException;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

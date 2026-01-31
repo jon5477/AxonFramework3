@@ -502,7 +502,7 @@ public class CommandGatewayFactoryTest {
 
         verify(callback1).onSuccess(any(), eq(42));
         verify(callback2).onSuccess(any(), eq(42));
-        verify(callback, never()).onSuccess(any(), anyObject());
+        verify(callback, never()).onSuccess(any(), any());
     }
 
     @Test(timeout = 2000)

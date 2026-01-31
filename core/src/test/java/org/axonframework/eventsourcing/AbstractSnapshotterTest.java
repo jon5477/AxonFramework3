@@ -32,7 +32,6 @@ import org.mockito.InOrder;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.createEvent;
 import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.createEvents;
@@ -140,9 +139,6 @@ public class AbstractSnapshotterTest {
         Field loggerField = AbstractSnapshotter.class.getDeclaredField("logger");
         ReflectionUtils.ensureAccessible(loggerField);
 
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(loggerField, loggerField.getModifiers() & ~Modifier.FINAL);
         Logger originalLogger = (Logger) loggerField.get(null);
         loggerField.set(null, mockLogger);
         return originalLogger;

@@ -169,7 +169,7 @@ public class CommandHandlerInvokerTest {
 
         verify(mockEventStore, never()).readEvents(eq(aggregateIdentifier));
         verify(mockEventStore, never()).readEvents(eq(aggregateIdentifier));
-        verify(mockEventStore).publish(Matchers.<DomainEventMessage<?>[]>anyVararg());
+        verify(mockEventStore).publish(ArgumentMatchers.<DomainEventMessage<?>[]>any());
     }
 
     @Test

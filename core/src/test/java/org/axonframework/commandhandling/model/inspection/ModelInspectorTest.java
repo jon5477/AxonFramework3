@@ -28,7 +28,7 @@ import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.messaging.annotation.MessageHandlingMember;
 import org.junit.Test;
 
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 import java.lang.annotation.*;
 import java.math.BigDecimal;
 import java.util.*;

@@ -160,6 +160,6 @@ public class AbstractRepositoryTest {
 
         testSubject.send(testMsg, testDescriptor);
 
-        verifyZeroInteractions(spiedAggregate);
+        verifyNoInteractions(spiedAggregate);
     }
 }

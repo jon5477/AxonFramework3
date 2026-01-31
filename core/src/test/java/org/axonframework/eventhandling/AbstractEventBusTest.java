@@ -153,7 +153,7 @@ public class AbstractEventBusTest {
         });
         testSubject.registerDispatchInterceptor(dispatchInterceptorMock);
         testSubject.publish(newEvent(), newEvent());
-        verifyZeroInteractions(dispatchInterceptorMock);
+        verifyNoInteractions(dispatchInterceptorMock);
 
         unitOfWork.commit();
         ArgumentCaptor<List> argumentCaptor = ArgumentCaptor.forClass(List.class);

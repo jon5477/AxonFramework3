@@ -92,7 +92,7 @@ public class EventProcessorTask implements Runnable {
                 processNextTask();
                 processedItems++;
                 // Continue processing if there is no rescheduling involved and there are events in the queue, or if yielding failed
-                mayContinue = (processedItems < itemsAtStart && !taskQueue.isEmpty()) || !yield();
+                mayContinue = (processedItems < itemsAtStart && !taskQueue.isEmpty()) || !yieldToThread();
             }
         }
     }
@@ -114,7 +114,7 @@ public class EventProcessorTask implements Runnable {
      *
      * @return true if yielding succeeded, false otherwise.
      */
-    private synchronized boolean yield() {
+    private synchronized boolean yieldToThread() {
         if (taskQueue.isEmpty()) {
             cleanUp();
         } else {

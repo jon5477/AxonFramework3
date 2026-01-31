@@ -22,11 +22,12 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.IncompatibleAggregateException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import static java.lang.String.format;
+
+import java.util.Objects;
 
 /**
  * AggregateFactory implementation that uses Spring prototype beans to create new uninitialized instances of
@@ -44,6 +45,10 @@ public class SpringPrototypeAggregateFactory<T> implements AggregateFactory<T>, 
     private String beanName;
     private Class<T> aggregateType;
     private AggregateFactory<T> delegate;
+
+    public SpringPrototypeAggregateFactory(String prototypeBeanName) {
+        this.prototypeBeanName = Objects.requireNonNull(prototypeBeanName);
+    }
 
     @Override
     public T createAggregateRoot(String aggregateIdentifier, DomainEventMessage<?> firstEvent) {
@@ -65,9 +70,8 @@ public class SpringPrototypeAggregateFactory<T> implements AggregateFactory<T>, 
      *
      * @param prototypeBeanName the name of the prototype bean this repository serves.
      */
-    @Required
     public void setPrototypeBeanName(String prototypeBeanName) {
-        this.prototypeBeanName = prototypeBeanName;
+        this.prototypeBeanName = Objects.requireNonNull(prototypeBeanName);
     }
 
     @Override

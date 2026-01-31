@@ -16,7 +16,7 @@
 
 package org.axonframework.eventsourcing;
 
-import net.sf.ehcache.CacheManager;
+import org.ehcache.CacheManager;
 import org.axonframework.commandhandling.StubAggregate;
 import org.axonframework.commandhandling.model.Aggregate;
 import org.axonframework.commandhandling.model.AggregateLifecycle;
@@ -32,6 +32,10 @@ import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageE
 import org.axonframework.messaging.unitofwork.CurrentUnitOfWork;
 import org.axonframework.messaging.unitofwork.DefaultUnitOfWork;
 import org.axonframework.messaging.unitofwork.UnitOfWork;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.core.Ehcache;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,15 +54,16 @@ public class CachingEventSourcingRepositoryTest {
     private CachingEventSourcingRepository<StubAggregate> testSubject;
     private EventStore mockEventStore;
     private Cache cache;
-    private net.sf.ehcache.Cache ehCache;
+    private org.ehcache.Cache ehCache;
 
     @Before
     public void setUp() {
         mockEventStore = spy(new EmbeddedEventStore(new InMemoryEventStorageEngine()));
 
-        final CacheManager cacheManager = CacheManager.getInstance();
-        ehCache = cacheManager.getCache("testCache");
-        cache = spy(new EhCacheAdapter(ehCache));
+        final CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+        ehCache = cacheManager.createCache("testCache", CacheConfigurationBuilder.newCacheConfigurationBuilder(Object.class, Object.class, ResourcePoolsBuilder.heap(100)));
+        cache = spy(new EhCacheAdapter((Ehcache) ehCache));
 
         testSubject = new CachingEventSourcingRepository<>(new StubAggregateFactory(), mockEventStore, cache);
     }
@@ -107,7 +112,7 @@ public class CachingEventSourcingRepositoryTest {
             eventList.add(events.next());
         }
         assertEquals(3, eventList.size());
-        ehCache.removeAll();
+        ehCache.clear();
 
         reloadedAggregate1 = testSubject.load(aggregate1.identifierAsString(), null);
 

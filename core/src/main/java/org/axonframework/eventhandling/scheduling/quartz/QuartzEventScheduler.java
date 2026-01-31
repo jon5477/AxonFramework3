@@ -44,7 +44,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import static org.axonframework.common.Assert.notNull;
 import static org.axonframework.eventhandling.scheduling.quartz.FireEventJob.*;

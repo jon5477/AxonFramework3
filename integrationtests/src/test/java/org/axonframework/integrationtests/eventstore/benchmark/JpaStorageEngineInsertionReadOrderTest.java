@@ -41,9 +41,9 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.AGGREGATE;
 import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.createEvent;

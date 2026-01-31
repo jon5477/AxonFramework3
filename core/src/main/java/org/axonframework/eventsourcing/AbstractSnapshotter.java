@@ -36,7 +36,7 @@ import java.util.concurrent.Executor;
  */
 public abstract class AbstractSnapshotter implements Snapshotter {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractSnapshotter.class);
+    private static Logger logger = LoggerFactory.getLogger(AbstractSnapshotter.class);
 
     private final EventStore eventStore;
     private final Executor executor;

@@ -18,7 +18,7 @@ package org.axonframework.messaging.interceptors;
 
 import org.axonframework.common.AxonNonTransientException;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;

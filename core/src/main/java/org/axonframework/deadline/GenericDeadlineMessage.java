@@ -22,6 +22,7 @@ import org.axonframework.messaging.Message;
 import org.axonframework.messaging.MetaData;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -118,7 +119,7 @@ public class GenericDeadlineMessage<T> extends GenericEventMessage<T> implements
      */
     @SuppressWarnings("unchecked")
     public static <T> DeadlineMessage<T> asDeadlineMessage(String deadlineName, Object messageOrPayload) {
-        Instant now = clock.instant();
+        Instant now = clock.instant().truncatedTo(ChronoUnit.MILLIS);
         return messageOrPayload instanceof Message
                 ? new GenericDeadlineMessage<>(deadlineName, (Message) messageOrPayload, () -> now)
                 : new GenericDeadlineMessage<>(deadlineName,

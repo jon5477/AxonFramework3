@@ -39,6 +39,7 @@ import org.axonframework.messaging.MessageHandler;
 import org.axonframework.messaging.MessageHandlerInterceptor;
 import org.axonframework.serialization.Serializer;
 import org.jgroups.Address;
+import org.jgroups.BytesMessage;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
@@ -311,21 +312,6 @@ public class JGroupsConnector implements CommandRouter, Receiver, CommandBusConn
     }
 
     @Override
-    public void suspect(Address suspected_mbr) {
-        logger.warn("Member is suspect: {}", suspected_mbr.toString());
-    }
-
-    @Override
-    public void block() {
-        //We are not going to block
-    }
-
-    @Override
-    public void unblock() {
-        //We are not going to block
-    }
-
-    @Override
     public void receive(Message msg) {
         executorService.execute(() -> {
             Object message = msg.getObject();
@@ -453,7 +439,7 @@ public class JGroupsConnector implements CommandRouter, Receiver, CommandBusConn
     private void sendMyConfigurationTo(Address endpoint, boolean expectReply, int order) {
         try {
             logger.info("Sending my configuration to {}.", getOrDefault(endpoint, "all nodes"));
-            Message returnJoinMessage = new Message(endpoint, new JoinMessage(this.loadFactor, this.commandFilter,
+            Message returnJoinMessage = new BytesMessage(endpoint, new JoinMessage(this.loadFactor, this.commandFilter,
                                                                               order, expectReply));
             returnJoinMessage.setFlag(Message.Flag.OOB);
             channel.send(returnJoinMessage);

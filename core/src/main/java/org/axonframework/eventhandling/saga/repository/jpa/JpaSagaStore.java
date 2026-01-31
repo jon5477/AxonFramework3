@@ -34,15 +34,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityNotFoundException;
 
 /**
- * JPA implementation of the Saga Store. It uses an {@link javax.persistence.EntityManager} to persist the actual saga
+ * JPA implementation of the Saga Store. It uses an {@link jakarta.persistence.EntityManager} to persist the actual saga
  * in a backing store in serialized form.
  * <p/>
- * After each operations that modified the backing store, {@link javax.persistence.EntityManager#flush()} is invoked to
+ * After each operations that modified the backing store, {@link jakarta.persistence.EntityManager#flush()} is invoked to
  * ensure the store contains the last modifications. To override this behavior, see {@link
  * #setUseExplicitFlush(boolean)}
  *
@@ -299,7 +299,7 @@ public class JpaSagaStore implements SagaStore<Object> {
     }
 
     /**
-     * Sets whether or not to do an explicit {@link javax.persistence.EntityManager#flush()} after each data modifying
+     * Sets whether or not to do an explicit {@link jakarta.persistence.EntityManager#flush()} after each data modifying
      * operation on the backing storage. Default to {@code true}
      *
      * @param useExplicitFlush {@code true} to force flush, {@code false} otherwise.

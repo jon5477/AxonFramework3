@@ -16,16 +16,9 @@
 
 package org.axonframework.commandhandling;
 
-import org.axonframework.common.Registration;
-import org.axonframework.eventhandling.AbstractEventBus;
-import org.axonframework.eventhandling.EventMessage;
-import org.axonframework.eventsourcing.DomainEventMessage;
-import org.axonframework.eventsourcing.EventSourcingRepository;
-import org.axonframework.eventsourcing.eventstore.*;
-import org.axonframework.messaging.unitofwork.CurrentUnitOfWork;
-import org.axonframework.messaging.unitofwork.DefaultUnitOfWork;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,7 +27,20 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import org.axonframework.common.Registration;
+import org.axonframework.eventhandling.AbstractEventBus;
+import org.axonframework.eventhandling.EventMessage;
+import org.axonframework.eventsourcing.DomainEventMessage;
+import org.axonframework.eventsourcing.EventSourcingRepository;
+import org.axonframework.eventsourcing.eventstore.DomainEventStream;
+import org.axonframework.eventsourcing.eventstore.EventStore;
+import org.axonframework.eventsourcing.eventstore.EventUtils;
+import org.axonframework.eventsourcing.eventstore.TrackingEventStream;
+import org.axonframework.eventsourcing.eventstore.TrackingToken;
+import org.axonframework.messaging.unitofwork.CurrentUnitOfWork;
+import org.axonframework.messaging.unitofwork.DefaultUnitOfWork;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
@@ -84,7 +90,8 @@ public class CommandHandlingTest {
 
         @Override
         protected void commit(List<? extends EventMessage<?>> events) {
-            storedEvents.addAll(events.stream().map(EventUtils::asDomainEventMessage).collect(Collectors.toList()));
+            storedEvents.addAll(events.stream().map((EventMessage<?> e) -> EventUtils.asDomainEventMessage(e))
+                    .collect(Collectors.toList()));
         }
 
         @Override

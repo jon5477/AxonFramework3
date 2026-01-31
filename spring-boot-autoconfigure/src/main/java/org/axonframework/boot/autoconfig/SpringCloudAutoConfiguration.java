@@ -33,7 +33,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
 import org.springframework.cloud.client.discovery.simple.SimpleDiscoveryClientAutoConfiguration;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.annotation.Bean;
@@ -44,7 +43,6 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @AutoConfigureAfter({
         RoutingStrategyAutoConfiguration.class,
-        NoopDiscoveryClientAutoConfiguration.class,
         SimpleDiscoveryClientAutoConfiguration.class
 })
 @AutoConfigureBefore(JGroupsAutoConfiguration.class)

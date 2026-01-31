@@ -18,7 +18,7 @@ package org.axonframework.eventhandling.saga.repository.jpa;
 import org.axonframework.serialization.SerializedObject;
 import org.axonframework.serialization.Serializer;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * Java Persistence Entity allowing sagas to be stored in a relational database.

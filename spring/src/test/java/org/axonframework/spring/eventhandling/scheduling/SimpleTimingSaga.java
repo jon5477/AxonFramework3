@@ -20,7 +20,7 @@ import org.axonframework.eventhandling.saga.SagaEventHandler;
 import org.axonframework.eventhandling.saga.StartSaga;
 import org.axonframework.eventhandling.scheduling.EventScheduler;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.Duration;
 
 /**

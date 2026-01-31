@@ -17,9 +17,10 @@
 package org.axonframework.spring.testutils;
 
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.annotation.Required;
 
 import static org.mockito.Mockito.mock;
+
+import java.util.Objects;
 
 /**
  * @author Allard Buijze
@@ -29,6 +30,10 @@ public class MockitoMockFactoryBean<T> implements FactoryBean<T> {
     private Class<T> mockType;
     private boolean singleton = true;
     private T lastMock;
+
+    public MockitoMockFactoryBean(Class<T> mockType) {
+        this.mockType = Objects.requireNonNull(mockType);
+    }
 
     @Override
     public T getObject() {
@@ -49,9 +54,8 @@ public class MockitoMockFactoryBean<T> implements FactoryBean<T> {
         return singleton;
     }
 
-    @Required
     public void setMockType(Class<T> mockType) {
-        this.mockType = mockType;
+        this.mockType = Objects.requireNonNull(mockType);
     }
 
     public void setSingleton(boolean singleton) {

@@ -343,7 +343,7 @@ public class SpringAxonAutoConfigurer implements ImportBeanDefinitionRegistrar, 
                         aggregateConf.configureSnapshotTrigger(
                                 c -> beanFactory.getBean(triggerDefinition, SnapshotTriggerDefinition.class));
                     }
-                    if (AnnotationUtils.isAnnotationPresent(aggregateType, "javax.persistence.Entity")) {
+                    if (AnnotationUtils.isAnnotationPresent(aggregateType, "jakarta.persistence.Entity")) {
                         aggregateConf.configureRepository(
                                 c -> new GenericJpaRepository(
                                         c.getComponent(EntityManagerProvider.class,

@@ -16,7 +16,7 @@
 
 package org.axonframework.eventsourcing;
 
-import net.sf.ehcache.CacheManager;
+import org.ehcache.CacheManager;
 import org.axonframework.commandhandling.model.Aggregate;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.common.caching.Cache;
@@ -31,6 +31,10 @@ import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
 import org.axonframework.messaging.unitofwork.DefaultUnitOfWork;
 import org.axonframework.messaging.unitofwork.UnitOfWork;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.core.Ehcache;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -97,8 +101,9 @@ public class CachingRepositoryWithNestedUnitOfWorkTest {
 
     @Before
     public void setUp() {
-        final CacheManager cacheManager = CacheManager.getInstance();
-        realCache = new EhCacheAdapter(cacheManager.addCacheIfAbsent("name"));
+        final CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+        realCache =  new EhCacheAdapter((Ehcache) cacheManager.createCache("name", CacheConfigurationBuilder.newCacheConfigurationBuilder(Object.class, Object.class, ResourcePoolsBuilder.heap(100))));
 
 
         eventStore = new EmbeddedEventStore(new InMemoryEventStorageEngine());

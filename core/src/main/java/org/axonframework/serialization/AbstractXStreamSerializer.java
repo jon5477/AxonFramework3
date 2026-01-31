@@ -146,6 +146,10 @@ public abstract class AbstractXStreamSerializer implements Serializer {
 
         xStream.alias("meta-data", MetaData.class);
         xStream.registerConverter(new MetaDataConverter(xStream.getMapper()));
+
+        xStream.allowTypesByWildcard(new String[] {
+            "org.axonframework.**"
+        });
     }
 
     /**

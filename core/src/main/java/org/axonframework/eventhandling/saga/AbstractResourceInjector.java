@@ -41,7 +41,7 @@ public abstract class AbstractResourceInjector implements ResourceInjector {
     private static final Logger logger = LoggerFactory.getLogger(AbstractResourceInjector.class);
 
     private static final String[] DEFAULT_INJECT_ANNOTATIONS = {
-            "javax.inject.Inject",
+            "jakarta.inject.Inject",
             "org.springframework.beans.factory.annotation.Autowired"
     };
 
@@ -104,7 +104,7 @@ public abstract class AbstractResourceInjector implements ResourceInjector {
     /**
      * Provides an array with fully qualified class names of the annotation that indicate an injection point for a
      * resource. By default, these are: <ul>
-     * <li>{@code javax.inject.Inject}, and </li>
+     * <li>{@code jakarta.inject.Inject}, and </li>
      * <li>{@code org.springframework.beans.factory.annotation.Autowired}</li>
      * </ul>
      *

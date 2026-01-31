@@ -19,10 +19,10 @@ import org.axonframework.common.DateTimeUtils;
 import org.axonframework.eventsourcing.eventstore.TrackingToken;
 import org.axonframework.serialization.*;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Lob;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
+import jakarta.persistence.MappedSuperclass;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;

@@ -216,7 +216,7 @@ public class AnnotatedAggregateMetaModelFactory implements AggregateMetaModelFac
                     }
                 });
                 if (identifierField == null) {
-                    AnnotationUtils.findAnnotationAttributes(field, "javax.persistence.Id").ifPresent(a -> {
+                    AnnotationUtils.findAnnotationAttributes(field, "jakarta.persistence.Id").ifPresent(a -> {
                         identifierField = field;
                         routingKey = field.getName();
                     });

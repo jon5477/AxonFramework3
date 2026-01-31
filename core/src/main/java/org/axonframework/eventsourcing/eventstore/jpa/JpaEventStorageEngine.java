@@ -48,8 +48,8 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import javax.sql.DataSource;
 
 import static org.axonframework.common.DateTimeUtils.formatInstant;

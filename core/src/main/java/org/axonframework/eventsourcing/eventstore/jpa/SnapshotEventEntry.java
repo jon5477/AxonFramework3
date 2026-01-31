@@ -17,7 +17,7 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.AbstractSnapshotEventEntry;
 import org.axonframework.serialization.Serializer;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 /**
  * Default implementation of an event entry containing a serialized snapshot of an aggregate. This implementation is

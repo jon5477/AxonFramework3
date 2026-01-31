@@ -33,7 +33,7 @@ public class ConnectionWrapperFactoryTest {
         wrapped.getAutoCommit();
         verify(connection).getAutoCommit();
 
-        verifyZeroInteractions(closeHandler);
+        verifyNoInteractions(closeHandler);
 
         wrapped.close();
         verify(connection, never()).close();

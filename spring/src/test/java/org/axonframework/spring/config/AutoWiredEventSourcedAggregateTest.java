@@ -33,7 +33,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 import static org.junit.Assert.assertEquals;

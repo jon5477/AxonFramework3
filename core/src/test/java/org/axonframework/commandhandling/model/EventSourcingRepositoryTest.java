@@ -31,7 +31,7 @@ import org.axonframework.messaging.unitofwork.DefaultUnitOfWork;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class EventSourcingRepositoryTest {
     @Before
     public void setUp() {
         eventStore = Mockito.mock(EventStore.class);
-        Mockito.when(eventStore.readEvents(Matchers.anyString())).thenAnswer(invocationOnMock -> DomainEventStream
+        Mockito.when(eventStore.readEvents(ArgumentMatchers.anyString())).thenAnswer(invocationOnMock -> DomainEventStream
                 .of(new GenericDomainEventMessage<Object>("type", invocationOnMock.getArgument(0), 1,
                                                           "Test1"),
                     new GenericDomainEventMessage<Object>("type", invocationOnMock.getArgument(0), 2,
@@ -80,7 +80,7 @@ public class EventSourcingRepositoryTest {
         Aggregate<StubAggregate> actual = repository.load("test");
 
         assertEquals(3L, (long) actual.version());
-        verify(eventStore, never()).publish(Matchers.<EventMessage<?>[]>anyVararg());
+        verify(eventStore, never()).publish(ArgumentMatchers.<EventMessage<?>[]>any());
         actual.execute(StubAggregate::changeState);
         assertEquals(6L, (long) actual.version());
         List<DomainEventMessage<String>> domainEventMessages = actual.invoke(StubAggregate::getMessages);

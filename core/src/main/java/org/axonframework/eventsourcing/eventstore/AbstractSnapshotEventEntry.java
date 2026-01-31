@@ -18,9 +18,9 @@ package org.axonframework.eventsourcing.eventstore;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.serialization.Serializer;
 
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.MappedSuperclass;
 import java.io.Serializable;
 import java.util.Objects;
 

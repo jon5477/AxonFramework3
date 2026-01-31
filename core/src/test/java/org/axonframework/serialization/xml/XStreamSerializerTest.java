@@ -42,6 +42,9 @@ public class XStreamSerializerTest {
     @Before
     public void setUp() {
         this.testSubject = new XStreamSerializer();
+        this.testSubject.getXStream().allowTypesByWildcard(new String[] {
+            "org.axonframework.**"
+        });
         this.testEvent = new TestEvent(REGULAR_STRING);
     }
 

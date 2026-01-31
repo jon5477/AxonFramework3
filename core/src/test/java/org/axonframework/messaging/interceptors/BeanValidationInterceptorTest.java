@@ -24,10 +24,10 @@ import org.axonframework.messaging.unitofwork.UnitOfWork;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import jakarta.validation.Validation;
+import jakarta.validation.ValidatorFactory;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;

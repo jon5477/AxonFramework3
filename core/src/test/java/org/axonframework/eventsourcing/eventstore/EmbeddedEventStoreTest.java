@@ -189,7 +189,7 @@ public class EmbeddedEventStoreTest {
         reset(storageEngine);
         assertTrue(stream.hasNextAvailable());
         TrackedEventMessage<?> firstEvent = stream.nextAvailable();
-        verifyZeroInteractions(storageEngine);
+        verifyNoInteractions(storageEngine);
         testSubject.publish(createEvent(CACHED_EVENTS), createEvent(CACHED_EVENTS + 1));
         Thread.sleep(100); //allow the cleaner thread to evict the consumer
         reset(storageEngine);
@@ -342,7 +342,7 @@ public class EmbeddedEventStoreTest {
         }
 
         // No tailing-consumer Producer thread has ever been created
-        verifyZeroInteractions(threadFactory);
+        verifyNoInteractions(threadFactory);
     }
 
     @Test

@@ -20,7 +20,7 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.AbstractSnapshotEventEntry;
 import org.axonframework.serialization.Serializer;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 /**
  * @author Allard Buijze

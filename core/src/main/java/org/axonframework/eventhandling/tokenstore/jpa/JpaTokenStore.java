@@ -24,8 +24,8 @@ import org.axonframework.serialization.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
@@ -170,7 +170,7 @@ public class JpaTokenStore implements TokenStore {
     protected TokenEntry loadOrCreateToken(String processorName, int segment, EntityManager entityManager) {
         TokenEntry token = entityManager
                 .find(TokenEntry.class, new TokenEntry.PK(processorName, segment), LockModeType.PESSIMISTIC_WRITE,
-                      Collections.singletonMap("javax.persistence.query.timeout", 1));
+                      Collections.singletonMap("jakarta.persistence.query.timeout", 1));
 
         if (token == null) {
             token = new TokenEntry(processorName, segment, null, serializer);

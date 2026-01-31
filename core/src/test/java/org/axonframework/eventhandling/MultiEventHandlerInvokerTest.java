@@ -42,7 +42,7 @@ public class MultiEventHandlerInvokerTest {
         testSubject.canHandle(testEventMessage, testSegment);
 
         verify(mockedEventHandlerInvokerOne).canHandle(testEventMessage, testSegment);
-        verifyZeroInteractions(mockedEventHandlerInvokerTwo);
+        verifyNoInteractions(mockedEventHandlerInvokerTwo);
     }
 
     @Test

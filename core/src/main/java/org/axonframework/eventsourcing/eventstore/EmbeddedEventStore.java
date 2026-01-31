@@ -39,7 +39,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import static java.util.stream.Collectors.toList;
 

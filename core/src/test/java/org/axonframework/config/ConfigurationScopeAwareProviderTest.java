@@ -75,7 +75,7 @@ public class ConfigurationScopeAwareProviderTest {
     public void lazilyInitializes() {
         new ConfigurationScopeAwareProvider(configuration);
 
-        verifyZeroInteractions(configuration);
+        verifyNoInteractions(configuration);
     }
 
     @Test
@@ -91,8 +91,8 @@ public class ConfigurationScopeAwareProviderTest {
 
         // provision twice
         List<ScopeAware> second = scopeAwareProvider.provideScopeAwareStream(anyScopeDescriptor()).collect(toList());
-        verifyZeroInteractions(configuration);
-        verifyZeroInteractions(aggregateConfiguration);
+        verifyNoInteractions(configuration);
+        verifyNoInteractions(aggregateConfiguration);
         assertThat(second, equalTo(first));
     }
 

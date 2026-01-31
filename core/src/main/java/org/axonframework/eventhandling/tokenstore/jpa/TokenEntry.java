@@ -17,9 +17,9 @@ import org.axonframework.eventhandling.tokenstore.AbstractTokenEntry;
 import org.axonframework.eventsourcing.eventstore.TrackingToken;
 import org.axonframework.serialization.Serializer;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import java.io.Serializable;
 import java.util.Objects;
 

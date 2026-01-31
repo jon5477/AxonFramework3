@@ -26,8 +26,9 @@ import org.axonframework.messaging.unitofwork.DefaultUnitOfWork;
 import org.axonframework.messaging.unitofwork.UnitOfWork;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.slf4j.LoggerFactory;
-import org.slf4j.impl.Log4jLoggerAdapter;
+import org.slf4j.reload4j.Reload4jLoggerAdapter;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -53,7 +54,7 @@ public class LoggingInterceptorTest {
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         testSubject = new LoggingInterceptor<>();
-        Log4jLoggerAdapter logger = (Log4jLoggerAdapter) LoggerFactory.getLogger(LoggingInterceptor.class);
+        Reload4jLoggerAdapter logger = (Reload4jLoggerAdapter) LoggerFactory.getLogger(LoggingInterceptor.class);
         Field loggerField = logger.getClass().getDeclaredField("logger");
         ReflectionUtils.makeAccessible(loggerField);
         mockLogger = mock(Logger.class);
@@ -111,6 +112,7 @@ public class LoggingInterceptorTest {
         RuntimeException exception = new RuntimeException();
         when(interceptorChain.proceed()).thenThrow(exception);
         when(mockLogger.isInfoEnabled()).thenReturn(true);
+        when(mockLogger.isEnabledFor(Level.WARN)).thenReturn(true);
 
         try {
             testSubject.handle(unitOfWork, interceptorChain);
@@ -119,6 +121,7 @@ public class LoggingInterceptorTest {
             // expected
         }
 
+        verify(mockLogger).log(any(String.class), eq(Level.INFO), eq("Incoming message: [StubMessage]"), isNull(Throwable.class));
         verify(mockLogger).log(any(String.class), eq(Level.WARN), and(contains("[StubMessage]"),
                                                                       contains("failed")), eq(exception));
     }
@@ -128,7 +131,7 @@ public class LoggingInterceptorTest {
         testSubject = new LoggingInterceptor<>("my.custom.logger");
         Field field = testSubject.getClass().getDeclaredField("logger");
         field.setAccessible(true);
-        Log4jLoggerAdapter logger = (Log4jLoggerAdapter) field.get(testSubject);
+        Reload4jLoggerAdapter logger = (Reload4jLoggerAdapter) field.get(testSubject);
         assertEquals("my.custom.logger", logger.getName());
     }
 

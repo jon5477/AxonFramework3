@@ -22,10 +22,10 @@ import org.axonframework.messaging.MessageDispatchInterceptor;
 import org.axonframework.messaging.MessageHandlerInterceptor;
 import org.axonframework.messaging.unitofwork.UnitOfWork;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -47,7 +47,7 @@ public class BeanValidationInterceptor<T extends Message<?>> implements MessageH
 
     /**
      * Initializes a validation interceptor using a default ValidatorFactory (see {@link
-     * javax.validation.Validation#buildDefaultValidatorFactory()}).
+     * jakarta.validation.Validation#buildDefaultValidatorFactory()}).
      */
     public BeanValidationInterceptor() {
         this(Validation.buildDefaultValidatorFactory());

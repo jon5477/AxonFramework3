@@ -16,14 +16,17 @@
 
 package org.axonframework.spring.messaging;
 
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.EventMessage;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.springframework.messaging.support.GenericMessage;
-
-import static org.mockito.Mockito.*;
 
 /**
  * @author Allard Buijze
@@ -51,7 +54,7 @@ public class InboundEventMessageChannelAdapterTest {
 
         testSubject.handleMessage(new GenericMessage<Object>(event));
 
-        verify(mockEventBus).publish(Matchers.anyList());
+        verify(mockEventBus).publish(ArgumentMatchers.anyList());
     }
 
 }

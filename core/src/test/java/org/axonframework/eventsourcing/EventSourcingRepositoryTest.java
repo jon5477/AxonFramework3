@@ -31,6 +31,7 @@ import org.axonframework.messaging.unitofwork.UnitOfWork;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
@@ -96,7 +97,7 @@ public class EventSourcingRepositoryTest {
 
         CurrentUnitOfWork.commit();
 
-        verify(mockEventStore, times(1)).publish((EventMessage)anyVararg());
+        verify(mockEventStore, times(1)).publish(ArgumentMatchers.any(EventMessage.class));
         assertEquals(1, aggregate.invoke(TestAggregate::getLiveEvents).size());
         assertSame(event3, aggregate.invoke(TestAggregate::getLiveEvents).get(0).getPayload());
     }

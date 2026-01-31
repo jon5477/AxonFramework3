@@ -16,15 +16,21 @@
 
 package org.axonframework.eventhandling.saga.repository;
 
-import net.sf.ehcache.CacheManager;
+import org.ehcache.CacheManager;
 import org.axonframework.common.caching.Cache;
 import org.axonframework.common.caching.EhCacheAdapter;
 import org.axonframework.eventhandling.saga.AssociationValue;
 import org.axonframework.eventhandling.saga.repository.inmemory.InMemorySagaStore;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.core.Ehcache;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
 
@@ -41,17 +47,21 @@ public class CachingSagaStoreTest {
     private org.axonframework.common.caching.Cache sagaCache;
     private CachingSagaStore<StubSaga> testSubject;
     private CacheManager cacheManager;
-    private net.sf.ehcache.Cache ehCache;
+    private org.ehcache.Cache ehCache;
     private SagaStore<Object> mockSagaStore;
 
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
-        ehCache = new net.sf.ehcache.Cache("test", 100, false, false, 10, 10);
-        cacheManager = CacheManager.create();
-        cacheManager.addCache(ehCache);
-        associationsCache = spy(new EhCacheAdapter(ehCache));
-        sagaCache = spy(new EhCacheAdapter(ehCache));
+        cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+        cacheManager.init();
+        ehCache = cacheManager.createCache("test",
+            CacheConfigurationBuilder
+                .newCacheConfigurationBuilder(Object.class, Object.class, ResourcePoolsBuilder.heap(100))
+                .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(10)))
+                .withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.ofSeconds(10))));
+        associationsCache = spy(new EhCacheAdapter((Ehcache) ehCache));
+        sagaCache = spy(new EhCacheAdapter((Ehcache) ehCache));
 
         mockSagaStore = spy(new InMemorySagaStore());
 
@@ -60,7 +70,7 @@ public class CachingSagaStoreTest {
 
     @After
     public void tearDown() {
-        cacheManager.shutdown();
+        cacheManager.close();
     }
 
     @Test
@@ -78,7 +88,7 @@ public class CachingSagaStoreTest {
 
         verify(associationsCache, never()).put(any(), any());
 
-        ehCache.removeAll();
+        ehCache.clear();
         reset(sagaCache, associationsCache);
 
         final AssociationValue associationValue = new AssociationValue("key", "value");
@@ -95,7 +105,7 @@ public class CachingSagaStoreTest {
         StubSaga saga = new StubSaga();
         testSubject.insertSaga(StubSaga.class, "id", saga, null, singleton(new AssociationValue("key", "value")));
 
-        ehCache.removeAll();
+        ehCache.clear();
         reset(sagaCache, associationsCache);
 
         SagaStore.Entry<StubSaga> actual = testSubject.loadSaga(StubSaga.class, "id");
@@ -109,7 +119,7 @@ public class CachingSagaStoreTest {
     @Test
     public void testSagaNotAddedToCacheWhenLoadReturnsNull() {
 
-        ehCache.removeAll();
+        ehCache.clear();
         reset(sagaCache, associationsCache);
 
         SagaStore.Entry<StubSaga> actual = testSubject.loadSaga(StubSaga.class, "id");

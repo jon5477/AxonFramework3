@@ -28,10 +28,10 @@ import org.axonframework.messaging.MessageDispatchInterceptor;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.FactoryBeanNotInitializedException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * FactoryBean that creates a gateway instance for any given (compatible) interface. If no explicit interface is
@@ -53,6 +53,11 @@ public class CommandGatewayFactoryBean<T> implements FactoryBean<T>, Initializin
     private List<CommandCallback<?, ?>> commandCallbacks = new ArrayList<>();
     private T gateway;
     private Class<T> gatewayInterface;
+    
+
+    public CommandGatewayFactoryBean(CommandBus commandBus) {
+        this.commandBus = Objects.requireNonNull(commandBus);
+    }
 
     @Override
     public T getObject() {
@@ -91,9 +96,8 @@ public class CommandGatewayFactoryBean<T> implements FactoryBean<T>, Initializin
      *
      * @param commandBus the command bus on which the Gateway must dispatch commands
      */
-    @Required
     public void setCommandBus(CommandBus commandBus) {
-        this.commandBus = commandBus;
+        this.commandBus = Objects.requireNonNull(commandBus);
     }
 
     /**

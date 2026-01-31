@@ -41,7 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

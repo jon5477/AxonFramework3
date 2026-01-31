@@ -11,7 +11,7 @@ import org.springframework.core.annotation.Order;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 
 public class EventHandlerRegistrarTest {

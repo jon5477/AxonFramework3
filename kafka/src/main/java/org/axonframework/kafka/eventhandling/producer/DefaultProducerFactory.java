@@ -16,6 +16,7 @@
 
 package org.axonframework.kafka.eventhandling.producer;
 
+import org.apache.kafka.clients.consumer.ConsumerGroupMetadata;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -27,11 +28,14 @@ import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.Uuid;
 import org.apache.kafka.common.errors.ProducerFencedException;
 import org.axonframework.common.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.temporal.TemporalUnit;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +43,6 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -53,7 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Setting {@link Builder#withConfirmationMode(ConfirmationMode)} to transactional produces a transactional producer; in
  * which case,
  * a cache of producers is maintained; closing the producer returns it to the cache.
- * If cache is full the producer will be closed {@link KafkaProducer#close(long, TimeUnit)} and evicted from cache.
+ * If cache is full the producer will be closed {@link KafkaProducer#close(Duration)} and evicted from cache.
  *
  * @author Nakul Mishra
  * @since 3.0
@@ -62,8 +65,7 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultProducerFactory.class);
 
-    private final int closeTimeout;
-    private final TimeUnit unit;
+    private final Duration closeTimeout;
     private final BlockingQueue<CloseLazyProducer<K, V>> cache;
     private final Map<String, Object> configs;
     private final ConfirmationMode confirmationMode;
@@ -74,7 +76,6 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
 
     private DefaultProducerFactory(Builder<K, V> builder) {
         this.closeTimeout = builder.closeTimeout;
-        this.unit = builder.unit;
         this.cache = new ArrayBlockingQueue<>(builder.producerCacheSize);
         this.configs = new HashMap<>(builder.configs);
         this.confirmationMode = builder.confirmationMode;
@@ -96,7 +97,7 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
             synchronized (this) {
                 if (this.producer == null) {
                     this.producer = new CloseLazyProducer<>(
-                            createKafkaProducer(configs), cache, closeTimeout, unit);
+                            createKafkaProducer(configs), cache, closeTimeout);
                 }
             }
         }
@@ -140,12 +141,12 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
         CloseLazyProducer<K, V> producer = this.producer;
         this.producer = null;
         if (producer != null) {
-            producer.delegate.close(this.closeTimeout, unit);
+            producer.delegate.close(this.closeTimeout);
         }
         producer = this.cache.poll();
         while (producer != null) {
             try {
-                producer.delegate.close(this.closeTimeout, unit);
+                producer.delegate.close(this.closeTimeout);
             } catch (Exception e) {
                 logger.error("Exception closing producer", e);
             }
@@ -161,7 +162,7 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
         Map<String, Object> configs = new HashMap<>(this.configs);
         configs.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG,
                     this.transactionIdPrefix + this.transactionIdSuffix.getAndIncrement());
-        producer = new CloseLazyProducer<>(createKafkaProducer(configs), cache, closeTimeout, unit);
+        producer = new CloseLazyProducer<>(createKafkaProducer(configs), cache, closeTimeout);
         producer.initTransactions();
         return producer;
     }
@@ -184,15 +185,12 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
 
         private final Producer<K, V> delegate;
         private final BlockingQueue<CloseLazyProducer<K, V>> cache;
-        private final int closeTimeout;
-        private final TimeUnit unit;
+        private final Duration closeTimeout;
 
-        CloseLazyProducer(Producer<K, V> delegate, BlockingQueue<CloseLazyProducer<K, V>> cache, int closeTimeout,
-                          TimeUnit unit) {
+        CloseLazyProducer(Producer<K, V> delegate, BlockingQueue<CloseLazyProducer<K, V>> cache, Duration closeTimeout) {
             this.delegate = delegate;
             this.cache = cache;
             this.closeTimeout = closeTimeout;
-            this.unit = unit;
         }
 
         @Override
@@ -221,6 +219,11 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
         }
 
         @Override
+        public Uuid clientInstanceId(Duration timeout) {
+            return this.delegate.clientInstanceId(timeout);
+        }
+
+        @Override
         public void initTransactions() {
             this.delegate.initTransactions();
         }
@@ -230,10 +233,17 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
             this.delegate.beginTransaction();
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void sendOffsetsToTransaction(Map<TopicPartition, OffsetAndMetadata> offsets, String consumerGroupId)
                 throws ProducerFencedException {
             this.delegate.sendOffsetsToTransaction(offsets, consumerGroupId);
+        }
+
+        @Override
+        public void sendOffsetsToTransaction(Map<TopicPartition, OffsetAndMetadata> map,
+            ConsumerGroupMetadata consumerGroupMetadata) throws ProducerFencedException {
+            this.delegate.sendOffsetsToTransaction(map, consumerGroupMetadata);
         }
 
         @Override
@@ -248,14 +258,14 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
 
         @Override
         public void close() {
-            close(this.closeTimeout, unit);
+            close(this.closeTimeout);
         }
 
         @Override
-        public void close(long timeout, TimeUnit unit) {
+        public void close(Duration timeout) {
             boolean isAdded = this.cache.offer(this);
             if (!isAdded) {
-                this.delegate.close(timeout, unit);
+                this.delegate.close(timeout);
             }
         }
 
@@ -271,8 +281,7 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
 
         private String transactionIdPrefix;
         private int producerCacheSize = 10;
-        private int closeTimeout = 30;
-        private TimeUnit unit = TimeUnit.SECONDS;
+        private Duration closeTimeout = Duration.ofSeconds(30);
         private ConfirmationMode confirmationMode = ConfirmationMode.NONE;
 
         /**
@@ -296,19 +305,18 @@ public class DefaultProducerFactory<K, V> implements ProducerFactory<K, V> {
         }
 
         /**
-         * How long to wait when {@link Producer#close(long, TimeUnit)} is invoked. Default is 30 seconds.
+         * How long to wait when {@link Producer#close(Duration)} is invoked. Default is 30 seconds.
          *
          * @param timeout how long to wait before closing a producer, in units of
          *                {@code unit}.
-         * @param unit    a {@code TimeUnit} determining how to interpret the
+         * @param unit    a {@code TemporalUnit} determining how to interpret the
          *                {@code timeout} parameter.
          * @return the builder.
          */
-        public Builder<K, V> withCloseTimeout(int timeout, TimeUnit unit) {
+        public Builder<K, V> withCloseTimeout(int timeout, TemporalUnit unit) {
             Assert.isTrue(timeout > 0, () -> "'closeTimeout' should be > 0");
             Assert.notNull(unit, () -> "'timeUnit' may not be null");
-            this.closeTimeout = timeout;
-            this.unit = unit;
+            this.closeTimeout = Duration.of(timeout, unit);
             return this;
         }
 

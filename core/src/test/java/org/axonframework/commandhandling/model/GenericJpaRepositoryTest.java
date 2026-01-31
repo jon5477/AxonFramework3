@@ -33,10 +33,10 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.internal.stubbing.answers.Returns;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.LockModeType;
-import javax.persistence.Version;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Id;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.Version;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;

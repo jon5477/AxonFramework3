@@ -16,8 +16,8 @@ package org.axonframework.eventsourcing.eventstore;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.serialization.Serializer;
 
-import javax.persistence.Basic;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Basic;
+import jakarta.persistence.MappedSuperclass;
 
 /**
  * Abstract base class of a serialized domain event. Fields in this class contain JPA annotations that direct JPA event

@@ -60,7 +60,7 @@ public class LockingSagaRepositoryTest {
         subject.createInstance("id", Object::new);
         verify(lockFactory).obtainLock("id");
         verify(subject).doCreateInstance(eq("id"), any());
-        verifyZeroInteractions(lock);
+        verifyNoInteractions(lock);
         CurrentUnitOfWork.commit();
         verify(lock).release();
     }
@@ -70,7 +70,7 @@ public class LockingSagaRepositoryTest {
         subject.load("id");
         verify(lockFactory).obtainLock("id");
         verify(subject).doLoad("id");
-        verifyZeroInteractions(lock);
+        verifyNoInteractions(lock);
         CurrentUnitOfWork.commit();
         verify(lock).release();
     }

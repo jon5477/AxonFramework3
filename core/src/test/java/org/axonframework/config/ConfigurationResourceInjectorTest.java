@@ -7,7 +7,7 @@ import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageE
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;

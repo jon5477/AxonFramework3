@@ -24,6 +24,7 @@ import org.axonframework.serialization.CachingSupplier;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -58,9 +59,9 @@ public class GenericEventMessage<T> extends MessageDecorator<T> implements Event
             return (EventMessage<T>) event;
         } else if (event instanceof Message) {
             Message message = (Message) event;
-            return new GenericEventMessage<>(message, clock.instant());
+            return new GenericEventMessage<>(message, clock.instant().truncatedTo(ChronoUnit.MILLIS));
         }
-        return new GenericEventMessage<>(new GenericMessage<>((T) event), clock.instant());
+        return new GenericEventMessage<>(new GenericMessage<>((T) event), clock.instant().truncatedTo(ChronoUnit.MILLIS));
     }
 
     /**
@@ -81,7 +82,7 @@ public class GenericEventMessage<T> extends MessageDecorator<T> implements Event
      * @see #asEventMessage(Object)
      */
     public GenericEventMessage(T payload, Map<String, ?> metaData) {
-        this(new GenericMessage<>(payload, metaData), clock.instant());
+        this(new GenericMessage<>(payload, metaData), clock.instant().truncatedTo(ChronoUnit.MILLIS));
     }
 
     /**

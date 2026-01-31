@@ -16,7 +16,7 @@
 
 package org.axonframework.eventsourcing.eventstore.jdbc;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import org.axonframework.common.jdbc.PersistenceExceptionResolver;
 import org.axonframework.common.transaction.NoTransactionManager;
 import org.axonframework.eventsourcing.eventstore.DomainEventData;

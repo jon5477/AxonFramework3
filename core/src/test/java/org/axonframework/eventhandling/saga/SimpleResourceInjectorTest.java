@@ -21,7 +21,7 @@ import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventsourcing.eventstore.TrackingToken;
 import org.junit.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.function.Consumer;
 import java.util.function.Function;
 

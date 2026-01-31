@@ -22,7 +22,7 @@ import org.axonframework.common.jdbc.PersistenceExceptionResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityExistsException;
+import jakarta.persistence.EntityExistsException;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
