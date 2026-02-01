@@ -58,14 +58,13 @@ public class JGroupsAutoConfiguration {
         Matcher matcher =
                 Pattern.compile("([^[\\[]]*)\\[(\\d*)\\]").matcher(properties.getJgroups().getGossip().getHosts());
         if (matcher.find()) {
-
-            GossipRouter gossipRouter = new GossipRouter(matcher.group(1), Integer.parseInt(matcher.group(2)));
             try {
+                GossipRouter gossipRouter = new GossipRouter(matcher.group(1), Integer.parseInt(matcher.group(2)));
                 gossipRouter.start();
+                return gossipRouter;
             } catch (Exception e) {
                 logger.warn("Unable to autostart start embedded Gossip server: {}", e.getMessage());
             }
-            return gossipRouter;
         } else {
             logger.error("Wrong hosts pattern, cannot start embedded Gossip Router: " +
                                  properties.getJgroups().getGossip().getHosts());
