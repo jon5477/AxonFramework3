@@ -32,7 +32,9 @@ import org.axonframework.queryhandling.responsetypes.ResponseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.EmitterProcessor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.Sinks;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -80,7 +82,7 @@ public class SimpleQueryBus implements QueryBus, QueryUpdateEmitter {
     private static final String QUERY_UPDATE_TASKS_RESOURCE_KEY = "/update-tasks";
 
     private final ConcurrentMap<String, CopyOnWriteArrayList<QuerySubscription>> subscriptions = new ConcurrentHashMap<>();
-    private final ConcurrentMap<SubscriptionQueryMessage<?, ?, ?>, FluxSinkWrapper<?>> updateHandlers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<SubscriptionQueryMessage<?, ?, ?>, SinkWrapper<?>> updateHandlers = new ConcurrentHashMap<>();
     private final MessageMonitor<? super QueryMessage<?, ?>> messageMonitor;
     private final MessageMonitor<? super SubscriptionQueryUpdateMessage<?>> updateMessageMonitor;
     private final QueryInvocationErrorHandler errorHandler;
@@ -255,19 +257,18 @@ public class SimpleQueryBus implements QueryBus, QueryUpdateEmitter {
                     return null;
                 }));
 
-        EmitterProcessor<SubscriptionQueryUpdateMessage<U>> processor = EmitterProcessor.create(updateBufferSize);
-        FluxSink<SubscriptionQueryUpdateMessage<U>> sink = processor.sink(backpressure.getOverflowStrategy());
-        sink.onDispose(() -> updateHandlers.remove(query));
-        FluxSinkWrapper<SubscriptionQueryUpdateMessage<U>> fluxSinkWrapper = new FluxSinkWrapper<>(sink);
-        updateHandlers.put(query, fluxSinkWrapper);
+        Sinks.Many<SubscriptionQueryUpdateMessage<U>> sink = Sinks.many().replay().limit(updateBufferSize);
+        Flux<SubscriptionQueryUpdateMessage<U>> flux = sink.asFlux().doFinally(signalType -> updateHandlers.remove(query));
+        SinksManyWrapper<SubscriptionQueryUpdateMessage<U>> sinkManyWrapper = new SinksManyWrapper<SubscriptionQueryUpdateMessage<U>>(sink);
+        updateHandlers.put(query, sinkManyWrapper);
 
         Registration registration = () -> {
-            fluxSinkWrapper.complete();
+            sinkManyWrapper.complete();
             return true;
         };
 
         return new DefaultSubscriptionQueryResult<>(initialResult.getMono(),
-                                                    processor.replay(updateBufferSize).autoConnect(),
+                                                    flux,
                                                     registration);
     }
 
@@ -372,11 +373,11 @@ public class SimpleQueryBus implements QueryBus, QueryUpdateEmitter {
     }
 
     @SuppressWarnings("unchecked")
-    private <U> void doEmit(SubscriptionQueryMessage<?, ?, ?> query, FluxSinkWrapper<?> updateHandler,
+    private <U> void doEmit(SubscriptionQueryMessage<?, ?, ?> query, SinkWrapper<?> updateHandler,
                             SubscriptionQueryUpdateMessage<U> update) {
         MessageMonitor.MonitorCallback monitorCallback = updateMessageMonitor.onMessageIngested(update);
         try {
-            ((FluxSinkWrapper<SubscriptionQueryUpdateMessage<U>>) updateHandler).next(update);
+            ((SinkWrapper<SubscriptionQueryUpdateMessage<U>>) updateHandler).next(update);
             monitorCallback.reportSuccess();
         } catch (Exception e) {
             logger.info("An error occurred while trying to emit an update to a query '{}'. " +
@@ -389,7 +390,7 @@ public class SimpleQueryBus implements QueryBus, QueryUpdateEmitter {
     }
 
     private void emitError(SubscriptionQueryMessage<?, ?, ?> query, Throwable cause,
-                           FluxSinkWrapper<?> updateHandler) {
+                           SinkWrapper<?> updateHandler) {
         try {
             updateHandler.error(cause);
         } catch (Exception e) {

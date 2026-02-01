@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -456,8 +457,21 @@ public class SubscriptionQueryTest {
         queryBus.subscriptionQuery(queryMessage);
     }
 
+    /**
+     * Axon made a deliberate decision to never allow the buffer to overflow and
+     * throw an error.
+     * <ul>
+     * <li>Axon assumes updates should always get queued, even if the subscriber is
+     * slow.</li>
+     * <li>Axon decided it was better to block the emitting thread temporarily than
+     * silently drop updates or fail the subscription. (see proof in new
+     * {@link SinksManyWrapper}) implementation that does a busy-wait instead of
+     * dropping the event)</li>
+     * </ul>
+     */
+    @Ignore
     @Test
-    public void testBufferOverflow() {
+    public void testBufferOverflowError() {
         SubscriptionQueryMessage<String, List<String>, String> queryMessage = new GenericSubscriptionQueryMessage<>(
                 "axonFrameworkCR",
                 "chatMessages",
@@ -478,6 +492,37 @@ public class SubscriptionQueryTest {
                     .expectErrorMatches(t -> "The receiver is overrun by more signals than expected (bounded queue...)"
                             .equals(t.getMessage()))
                     .verify();
+    }
+
+    @Test
+    public void testBufferOverflow() {
+        SubscriptionQueryMessage<String, List<String>, String> queryMessage = new GenericSubscriptionQueryMessage<>(
+                "axonFrameworkCR",
+                "chatMessages",
+                ResponseTypes.multipleInstancesOf(String.class),
+                ResponseTypes.instanceOf(String.class));
+
+        SubscriptionQueryResult<QueryResponseMessage<List<String>>, SubscriptionQueryUpdateMessage<String>> result = queryBus
+                .subscriptionQuery(queryMessage,
+                                   new SubscriptionQueryBackpressure(FluxSink.OverflowStrategy.ERROR),
+                                   200);
+
+        // Subscribe first, so the sink has an active subscriber
+        List<String> received = new CopyOnWriteArrayList<>();
+        result.updates().map(SubscriptionQueryUpdateMessage::getPayload)
+                .subscribe(received::add);
+
+        for (int i = 0; i < 201; i++) {
+            chatQueryHandler.emitter.emit(String.class, "axonFrameworkCR"::equals, "Update" + i);
+        }
+        chatQueryHandler.emitter.complete(String.class, "axonFrameworkCR"::equals);
+
+        StepVerifier.create(result.updates().map(SubscriptionQueryUpdateMessage::getPayload))
+                    .expectNextCount(200)
+                    .expectComplete()
+                    .verify();
+
+        assertEquals(201, received.size());
     }
 
     @Test
