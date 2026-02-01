@@ -16,21 +16,21 @@
 
 package org.axonframework.mongo.utils;
 
-import de.flapdoodle.embed.mongo.Command;
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.*;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.config.IRuntimeConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.mockito.Mockito.mock;
 
-import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.mockito.Mockito.mock;
+import javax.net.SocketFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.mongo.transitions.MongodStarter;
+import de.flapdoodle.embed.process.runtime.Network;
 
 /**
  * @author Allard Buijze
@@ -61,23 +61,14 @@ public class MongoLauncher {
             return mock(MongodExecutable.class);
         }
 
-        IMongodConfig mongodConfig = new MongodConfigBuilder()
-                .version(Version.Main.PRODUCTION)
-                .net(new Net(MONGO_DEFAULT_PORT, false))
+        MongodConfig mongodConfig = MongodConfig.builder()
+                .version(Version.Main.PRODUCTION) // latest stable MongoDB (6.x)
+                .net(MONGO_DEFAULT_PORT, Network.localhostIsIPv6())
                 .build();
 
-        Command command = Command.MongoD;
-        IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
-                .defaults(command)
-                .artifactStore(new ArtifactStoreBuilder()
-                        .defaults(command)
-                        .download(new DownloadConfigBuilder()
-                                .defaultsForCommand(command))
-                        .executableNaming((prefix, postfix) -> prefix + "_axontest_" + counter.getAndIncrement() + "_" + postfix))
-                .build();
+        // Starter automatically picks correct binaries
+        MongodStarter starter = MongodStarter.getDefaultInstance();
 
-        MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
-
-        return runtime.prepare(mongodConfig);
+        return starter.prepare(mongodConfig);
     }
 }

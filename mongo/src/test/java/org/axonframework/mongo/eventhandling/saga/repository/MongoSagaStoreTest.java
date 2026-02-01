@@ -16,11 +16,19 @@
 
 package org.axonframework.mongo.eventhandling.saga.repository;
 
-import com.mongodb.Mongo;
-import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.StreamSupport;
+
 import org.axonframework.eventhandling.saga.AssociationValue;
 import org.axonframework.eventhandling.saga.AssociationValues;
 import org.axonframework.eventhandling.saga.AssociationValuesImpl;
@@ -31,7 +39,11 @@ import org.axonframework.mongo.utils.MongoLauncher;
 import org.axonframework.serialization.xml.XStreamSerializer;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +54,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.StreamSupport;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static org.junit.Assert.*;
+import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.MongodProcess;
 
 /**
  * @author Jettro Coenradie
@@ -78,7 +88,7 @@ public class MongoSagaStoreTest {
         mongod = mongoExe.start();
         if (mongod == null) {
             // we're using an existing mongo instance. Make sure it's clean
-            org.axonframework.mongo.eventsourcing.eventstore.DefaultMongoTemplate template = new org.axonframework.mongo.eventsourcing.eventstore.DefaultMongoTemplate(new MongoClient());
+            org.axonframework.mongo.eventsourcing.eventstore.DefaultMongoTemplate template = new org.axonframework.mongo.eventsourcing.eventstore.DefaultMongoTemplate(MongoClients.create());
             template.eventCollection().drop();
             template.snapshotCollection().drop();
         }
@@ -97,7 +107,7 @@ public class MongoSagaStoreTest {
     @Before
     public void setUp() {
         try {
-            context.getBean(Mongo.class);
+            context.getBean(MongoClient.class);
             context.getBean(MongoEventStorageEngine.class);
         } catch (Exception e) {
             logger.error("No Mongo instance found. Ignoring test.");

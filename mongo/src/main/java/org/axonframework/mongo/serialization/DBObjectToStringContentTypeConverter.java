@@ -16,9 +16,10 @@
 
 package org.axonframework.mongo.serialization;
 
-import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 import org.axonframework.serialization.ContentTypeConverter;
+import org.bson.Document;
+
+import com.mongodb.DBObject;
 
 /**
  * ContentTypeConverter implementation that converts a DBObject structure into a String containing its Binary JSON
@@ -41,6 +42,10 @@ public class DBObjectToStringContentTypeConverter implements ContentTypeConverte
 
     @Override
     public String convert(DBObject original) {
-        return JSON.serialize(original);
+        if (original != null) {
+            Document doc = new Document(original.toMap());
+            return doc.toJson();
+        }
+        return null;
     }
 }

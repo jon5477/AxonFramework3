@@ -16,13 +16,14 @@
 
 package org.axonframework.mongo.eventsourcing.eventstore;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteConcern;
-
 import java.util.Collections;
 import java.util.List;
+
+import com.mongodb.MongoClientSettings;
+import com.mongodb.ServerAddress;
+import com.mongodb.WriteConcern;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 
 /**
  * Convenience class for creating Mongo instances. It helps configuring a Mongo instance with a WriteConcern safe to use
@@ -39,7 +40,7 @@ import java.util.List;
 public class MongoFactory {
 
     private List<ServerAddress> mongoAddresses = Collections.emptyList();
-    private MongoClientOptions mongoOptions = MongoClientOptions.builder().build();
+    private MongoClientSettings.Builder mongoOptions = MongoClientSettings.builder();
     private WriteConcern writeConcern;
 
     /**
@@ -49,15 +50,14 @@ public class MongoFactory {
      * @return a new Mongo instance each time this method is called.
      */
     public MongoClient createMongo() {
-        MongoClient mongo;
         if (mongoAddresses.isEmpty()) {
-            mongo = new MongoClient(new ServerAddress(), mongoOptions);
+        	mongoOptions.applyToClusterSettings(builder -> builder.hosts(Collections.singletonList(new ServerAddress())));
         } else {
-            mongo = new MongoClient(mongoAddresses, mongoOptions);
+        	mongoOptions.applyToClusterSettings(builder -> builder.hosts(mongoAddresses));
         }
-        mongo.setWriteConcern(defaultWriteConcern());
+        mongoOptions.writeConcern(defaultWriteConcern());
 
-        return mongo;
+        return MongoClients.create(mongoOptions.build());
     }
 
     /**
@@ -75,12 +75,12 @@ public class MongoFactory {
     }
 
     /**
-     * Provide an instance of MongoOptions to be used for the connections. Defaults to a MongoOptions with all its
-     * default settings.
+     * Provide an instance of MongoClientSettings.Builder to be used for the connections. 
+     * Defaults to a MongoClientSettings.Builder with all its default settings.
      *
      * @param mongoOptions MongoOptions to overrule the default
      */
-    public void setMongoOptions(MongoClientOptions mongoOptions) {
+    public void setMongoOptions(MongoClientSettings.Builder mongoOptions) {
         this.mongoOptions = mongoOptions;
     }
 
@@ -107,9 +107,9 @@ public class MongoFactory {
         if (writeConcern != null) {
             return this.writeConcern;
         } else if (mongoAddresses.size() > 1) {
-            return WriteConcern.REPLICAS_SAFE;
+            return WriteConcern.W2;
         } else {
-            return WriteConcern.FSYNC_SAFE;
+            return WriteConcern.JOURNALED;
         }
     }
 }

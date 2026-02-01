@@ -16,7 +16,7 @@
 
 package org.axonframework.mongo;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
 /**

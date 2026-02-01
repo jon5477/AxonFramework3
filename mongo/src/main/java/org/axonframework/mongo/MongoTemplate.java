@@ -16,8 +16,9 @@
 
 package org.axonframework.mongo;
 
-import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+
+import com.mongodb.client.MongoCollection;
 
 /**
  * Template object providing access to the collections necessary for the Mongo based components.

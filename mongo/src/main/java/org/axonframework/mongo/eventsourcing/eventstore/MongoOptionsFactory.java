@@ -16,9 +16,12 @@
 
 package org.axonframework.mongo.eventsourcing.eventstore;
 
-import com.mongodb.MongoClientOptions;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mongodb.MongoClientSettings;
 
 /**
  * <p>
@@ -33,18 +36,17 @@ public class MongoOptionsFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(MongoOptionsFactory.class);
 
-    private final MongoClientOptions defaults;
+    private final MongoClientSettings.Builder defaults;
     private int connectionsPerHost;
     private int connectionTimeout;
-    private int maxWaitTime;
-    private int threadsAllowedToBlockForConnectionMultiplier;
+    private long maxWaitTime;
     private int socketTimeOut;
 
     /**
      * Default constructor for the factory that initializes the defaults.
      */
     public MongoOptionsFactory() {
-        defaults = MongoClientOptions.builder().build();
+        defaults = MongoClientSettings.builder();
     }
 
     /**
@@ -52,20 +54,22 @@ public class MongoOptionsFactory {
      *
      * @return MongoOptions instance based on the configured properties
      */
-    public MongoClientOptions createMongoOptions() {
-        MongoClientOptions options = MongoClientOptions.builder()
-                .connectionsPerHost(getConnectionsPerHost())
-                .connectTimeout(getConnectionTimeout())
-                .maxWaitTime(getMaxWaitTime())
-                .threadsAllowedToBlockForConnectionMultiplier(getThreadsAllowedToBlockForConnectionMultiplier())
-                .socketTimeout(getSocketTimeOut()).build();
+    public MongoClientSettings.Builder createMongoOptions() {
+    	MongoClientSettings.Builder options = MongoClientSettings.builder()
+                .applyToConnectionPoolSettings(pool -> {
+                    pool.maxSize(getConnectionsPerHost())
+                        .maxWaitTime(getMaxWaitTime(), TimeUnit.MILLISECONDS);
+                })
+                .applyToSocketSettings(socket -> {
+                    socket.connectTimeout(getConnectionTimeout(), TimeUnit.MILLISECONDS)
+                        .readTimeout(getSocketTimeOut(), TimeUnit.MILLISECONDS);
+                });
         if (logger.isDebugEnabled()) {
             logger.debug("Mongo Options");
-            logger.debug("Connections per host :{}", options.getConnectionsPerHost());
-            logger.debug("Connection timeout : {}", options.getConnectTimeout());
-            logger.debug("Max wait timeout : {}", options.getMaxWaitTime());
-            logger.debug("Threads allowed to block : {}", options.getThreadsAllowedToBlockForConnectionMultiplier());
-            logger.debug("Socket timeout : {}", options.getSocketTimeout());
+            logger.debug("Connections per host :{}", getConnectionsPerHost());
+            logger.debug("Connection timeout : {}", getConnectionTimeout());
+            logger.debug("Max wait timeout : {}", getMaxWaitTime());
+            logger.debug("Socket timeout : {}", getSocketTimeOut());
         }
         return options;
     }
@@ -76,7 +80,7 @@ public class MongoOptionsFactory {
      * @return number representing the connections per host
      */
     public int getConnectionsPerHost() {
-        return (connectionsPerHost > 0) ? connectionsPerHost : defaults.getConnectionsPerHost();
+    	return (connectionsPerHost > 0) ? connectionsPerHost : defaults.build().getConnectionPoolSettings().getMaxSize();
     }
 
     /**
@@ -94,7 +98,7 @@ public class MongoOptionsFactory {
      * @return number representing milli seconds of timeout
      */
     public int getConnectionTimeout() {
-        return (connectionTimeout > 0) ? connectionTimeout : defaults.getConnectTimeout();
+        return (connectionTimeout > 0) ? connectionTimeout : defaults.build().getSocketSettings().getConnectTimeout(TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -111,8 +115,8 @@ public class MongoOptionsFactory {
      *
      * @return number of milli seconds the thread waits for a connection
      */
-    public int getMaxWaitTime() {
-        return (maxWaitTime > 0) ? maxWaitTime : defaults.getMaxWaitTime();
+    public long getMaxWaitTime() {
+        return (maxWaitTime > 0) ? maxWaitTime : defaults.build().getConnectionPoolSettings().getMaxWaitTime(TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -130,7 +134,7 @@ public class MongoOptionsFactory {
      * @return Number representing the amount of milli seconds to wait for a socket connection
      */
     public int getSocketTimeOut() {
-        return (socketTimeOut > 0) ? socketTimeOut : defaults.getSocketTimeout();
+        return (socketTimeOut > 0) ? socketTimeOut : defaults.build().getSocketSettings().getReadTimeout(TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -140,28 +144,5 @@ public class MongoOptionsFactory {
      */
     public void setSocketTimeOut(int socketTimeOut) {
         this.socketTimeOut = socketTimeOut;
-    }
-
-    /**
-     * Getter for the amount of threads that block in relation to the amount of possible connections.
-     *
-     * @return Number representing the multiplier of maximum allowed blocked connections in relation to the maximum
-     *         allowed connections
-     */
-    public int getThreadsAllowedToBlockForConnectionMultiplier() {
-        return (threadsAllowedToBlockForConnectionMultiplier > 0)
-                ? threadsAllowedToBlockForConnectionMultiplier
-                : defaults.getThreadsAllowedToBlockForConnectionMultiplier();
-    }
-
-    /**
-     * Set the multiplier for the amount of threads to block in relation to the maximum amount of connections.
-     *
-     * @param threadsAllowedToBlockForConnectionMultiplier
-     *            Number representing the multiplier of the amount of threads to block in relation to the connections
-     *            that are allowed.
-     */
-    public void setThreadsAllowedToBlockForConnectionMultiplier(int threadsAllowedToBlockForConnectionMultiplier) {
-        this.threadsAllowedToBlockForConnectionMultiplier = threadsAllowedToBlockForConnectionMultiplier;
     }
 }

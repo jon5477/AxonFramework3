@@ -16,10 +16,11 @@
 
 package org.axonframework.mongo;
 
-import com.mongodb.MongoClient;
+import org.bson.Document;
+
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
 
 /**
  * MongoTemplate instance giving direct access to the TrackingToken collection via a given MongoClient instance.

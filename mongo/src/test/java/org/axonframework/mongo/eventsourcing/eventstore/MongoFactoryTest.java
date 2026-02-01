@@ -16,10 +16,11 @@
 
 package org.axonframework.mongo.eventsourcing.eventstore;
 
-import com.mongodb.Mongo;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 
-import static org.junit.Assert.assertNotNull;
+import com.mongodb.client.MongoClient;
 
 /**
  * @author Jettro Coenradie
@@ -29,7 +30,7 @@ public class MongoFactoryTest {
     @Test
     public void createMongoInstance() {
         MongoFactory mongoFactory = new MongoFactory();
-        Mongo mongoInstance = mongoFactory.createMongo();
+        MongoClient mongoInstance = mongoFactory.createMongo();
 
         assertNotNull(mongoInstance);
     }

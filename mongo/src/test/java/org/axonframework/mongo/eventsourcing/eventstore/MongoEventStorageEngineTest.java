@@ -16,10 +16,13 @@
 
 package org.axonframework.mongo.eventsourcing.eventstore;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
+import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.AGGREGATE;
+import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.createEvent;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import java.io.IOException;
+
 import org.axonframework.common.jdbc.PersistenceExceptionResolver;
 import org.axonframework.eventsourcing.eventstore.AbstractEventStorageEngine;
 import org.axonframework.mongo.eventsourcing.eventstore.documentperevent.DocumentPerEventStorageStrategy;
@@ -27,7 +30,11 @@ import org.axonframework.mongo.utils.MongoLauncher;
 import org.axonframework.serialization.upcasting.event.EventUpcaster;
 import org.axonframework.serialization.upcasting.event.NoOpEventUpcaster;
 import org.axonframework.serialization.xml.XStreamSerializer;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +44,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoClient;
 
-import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.AGGREGATE;
-import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.createEvent;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.MongodProcess;
 
 
 /**
@@ -109,7 +115,7 @@ public class MongoEventStorageEngineTest extends AbstractMongoEventStorageEngine
         testSubject.storeSnapshot(createEvent(1));
         testSubject.storeSnapshot(createEvent(2));
 
-        assertEquals(1, mongoTemplate.snapshotCollection().count());
+        assertEquals(1, mongoTemplate.snapshotCollection().countDocuments());
     }
 
     @Test

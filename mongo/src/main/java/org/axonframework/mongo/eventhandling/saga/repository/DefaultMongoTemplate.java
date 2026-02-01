@@ -16,11 +16,12 @@
 
 package org.axonframework.mongo.eventhandling.saga.repository;
 
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
 import org.axonframework.mongo.AbstractMongoTemplate;
 import org.axonframework.mongo.MongoTemplate;
 import org.bson.Document;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
 
 /**
  * MongoTemplate instance providing access to the MongoDB Collection containing stored Sagas.

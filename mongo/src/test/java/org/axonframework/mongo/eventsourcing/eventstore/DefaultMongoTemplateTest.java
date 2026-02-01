@@ -16,12 +16,16 @@
 
 package org.axonframework.mongo.eventsourcing.eventstore;
 
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoDatabase;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
 
 /**
  * @author Jettro Coenradie

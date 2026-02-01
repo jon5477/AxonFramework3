@@ -16,14 +16,18 @@
 
 package org.axonframework.mongo;
 
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 public class DefaultMongoTemplateTest {
 
