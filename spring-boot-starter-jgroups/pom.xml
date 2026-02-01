@@ -52,12 +52,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-spring-boot-autoconfigure</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-distributed-commandbus-jgroups</artifactId>
             <version>${project.version}</version>
         </dependency>

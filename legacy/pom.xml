@@ -33,7 +33,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-core</artifactId>
             <version>${project.version}</version>
         </dependency>

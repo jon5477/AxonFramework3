@@ -52,12 +52,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>garminpay</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>garminpay</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-distributed-commandbus-jgroups</artifactId>
             <version>${project.version}</version>
             <optional>true</optional>

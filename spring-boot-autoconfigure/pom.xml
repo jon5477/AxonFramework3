@@ -28,36 +28,36 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-amqp</artifactId>
             <version>${project.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-kafka</artifactId>
             <version>${project.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-spring</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-distributed-commandbus-jgroups</artifactId>
             <version>${project.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-distributed-commandbus-springcloud</artifactId>
             <version>${project.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-metrics</artifactId>
             <version>${project.version}</version>
             <optional>true</optional>

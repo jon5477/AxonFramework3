@@ -48,7 +48,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>garminpay</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>axon-spring-boot-autoconfigure</artifactId>
             <version>${project.version}</version>
         </dependency>
