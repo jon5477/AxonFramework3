@@ -16,12 +16,24 @@
 
 package org.axonframework.kafka.eventhandling;
 
+import static org.axonframework.eventhandling.GenericEventMessage.asEventMessage;
+import static org.axonframework.kafka.eventhandling.ConsumerConfigUtil.minimal;
+import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.ackProducerFactory;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.TimeUnit;
+
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventhandling.TrackedEventMessage;
-import org.axonframework.kafka.eventhandling.consumer.*;
+import org.axonframework.kafka.eventhandling.consumer.AsyncFetcher;
+import org.axonframework.kafka.eventhandling.consumer.ConsumerFactory;
+import org.axonframework.kafka.eventhandling.consumer.DefaultConsumerFactory;
+import org.axonframework.kafka.eventhandling.consumer.Fetcher;
+import org.axonframework.kafka.eventhandling.consumer.KafkaMessageSource;
 import org.axonframework.kafka.eventhandling.producer.KafkaPublisher;
 import org.axonframework.kafka.eventhandling.producer.KafkaPublisherConfiguration;
 import org.axonframework.kafka.eventhandling.producer.ProducerFactory;
@@ -29,17 +41,10 @@ import org.axonframework.messaging.MessageStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.concurrent.TimeUnit;
-
-import static org.axonframework.eventhandling.GenericEventMessage.asEventMessage;
-import static org.axonframework.kafka.eventhandling.ConsumerConfigUtil.minimal;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @DirtiesContext
@@ -47,13 +52,13 @@ import static org.junit.Assert.assertTrue;
 public class KafkaIntegrationTest {
 
     @Autowired
-    private KafkaEmbedded kafka;
+    private EmbeddedKafkaBroker kafka;
     private EventBus eventBus;
 
     @Test
     public void testPublishAndReadMessages() throws Exception {
         eventBus = new SimpleEventBus();
-        ProducerFactory<String, byte[]> producerFactory = ProducerConfigUtil.ackProducerFactory(kafka, ByteArraySerializer.class);
+        ProducerFactory<String, byte[]> producerFactory = ackProducerFactory(kafka, ByteArraySerializer.class);
         KafkaPublisher<String, byte[]> publisher = new KafkaPublisher<>(KafkaPublisherConfiguration.<String, byte[]>builder()
                                                                                 .withProducerFactory(producerFactory)
                                                                                 .withTopic("integration")

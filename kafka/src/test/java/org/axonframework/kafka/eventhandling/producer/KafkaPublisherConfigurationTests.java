@@ -16,13 +16,13 @@
 
 package org.axonframework.kafka.eventhandling.producer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 import org.axonframework.kafka.eventhandling.KafkaMessageConverter;
 import org.axonframework.messaging.SubscribableMessageSource;
 import org.axonframework.monitoring.MessageMonitor;
-import org.junit.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import org.junit.Test;
 
 /**
  * Tests for {@link KafkaPublisherConfiguration}.

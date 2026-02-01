@@ -15,14 +15,14 @@
 
 package org.axonframework.kafka.eventhandling;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.axonframework.kafka.eventhandling.consumer.ConsumerFactory;
 import org.axonframework.kafka.eventhandling.consumer.DefaultConsumerFactory;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 
 /**
  * Test util for generating {@link ConsumerConfig}.
@@ -35,17 +35,17 @@ public class ConsumerConfigUtil {
         // private ctor
     }
 
-    public static Map<String, Object> minimal(KafkaEmbedded kafka, String group) {
+    public static Map<String, Object> minimal(EmbeddedKafkaBroker kafka, String group) {
         return minimal(kafka, group, StringDeserializer.class);
     }
 
-    public static Map<String, Object> minimalTransactional(KafkaEmbedded kafka, String group, Class valueDeserializer) {
+    public static Map<String, Object> minimalTransactional(EmbeddedKafkaBroker kafka, String group, Class valueDeserializer) {
         Map<String, Object> configs = minimal(kafka, group, valueDeserializer);
         configs.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
         return configs;
     }
 
-    public static Map<String, Object> minimal(KafkaEmbedded kafka, String groupName, Class valueDeserializer) {
+    public static Map<String, Object> minimal(EmbeddedKafkaBroker kafka, String groupName, Class valueDeserializer) {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBrokersAsString());
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -55,11 +55,11 @@ public class ConsumerConfigUtil {
         return config;
     }
 
-    public static ConsumerFactory<String, String> consumerFactory(KafkaEmbedded kafka, String group) {
+    public static ConsumerFactory<String, String> consumerFactory(EmbeddedKafkaBroker kafka, String group) {
         return new DefaultConsumerFactory<>(minimal(kafka, group));
     }
 
-    public static DefaultConsumerFactory<String, Object> transactionalConsumerFactory(KafkaEmbedded kafka, String group,
+    public static DefaultConsumerFactory<String, Object> transactionalConsumerFactory(EmbeddedKafkaBroker kafka, String group,
                                                                                       Class valueDeserializer) {
         return new DefaultConsumerFactory<>(minimalTransactional(kafka, group, valueDeserializer));
     }

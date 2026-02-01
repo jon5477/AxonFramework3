@@ -22,6 +22,7 @@ import org.axonframework.messaging.Message;
 import org.axonframework.messaging.MetaData;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -62,7 +63,7 @@ public class GenericDomainEventMessage<T> extends GenericEventMessage<T> impleme
      */
     public GenericDomainEventMessage(String type, String aggregateIdentifier, long sequenceNumber, T payload,
                                      Map<String, ?> metaData) {
-        this(type, aggregateIdentifier, sequenceNumber, new GenericMessage<>(payload, metaData), GenericEventMessage.clock.instant());
+        this(type, aggregateIdentifier, sequenceNumber, new GenericMessage<>(payload, metaData), GenericEventMessage.clock.instant().truncatedTo(ChronoUnit.MILLIS));
     }
 
     /**

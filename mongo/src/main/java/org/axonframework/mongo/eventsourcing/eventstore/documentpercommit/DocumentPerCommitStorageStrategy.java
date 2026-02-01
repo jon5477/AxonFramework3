@@ -79,7 +79,7 @@ public class DocumentPerCommitStorageStrategy extends AbstractMongoEventStorageS
     @Override
     protected Stream<Document> createEventDocuments(List<? extends EventMessage<?>> events, Serializer serializer) {
         return Stream
-                .of(new CommitEntry(events.stream().map(EventUtils::asDomainEventMessage).collect(Collectors.toList()),
+                .of(new CommitEntry(events.stream().map((EventMessage<?> e) -> EventUtils.asDomainEventMessage(e)).collect(Collectors.toList()),
                                     serializer).asDocument(commitEntryConfiguration, eventConfiguration()));
     }
 

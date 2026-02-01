@@ -109,7 +109,7 @@
         <jgroups.version>5.5.1.Final</jgroups.version>
         <mockito.version>4.11.0</mockito.version>
         <powermock.version>2.0.9</powermock.version>
-        <kafka.version>3.9.1</kafka.version>
+        <kafka.version>3.8.1</kafka.version>
         <projectreactor.version>3.8.0</projectreactor.version>
         <jackson.version>2.19.0</jackson.version>
         <hibernate.version>5.6.15.Final</hibernate.version>

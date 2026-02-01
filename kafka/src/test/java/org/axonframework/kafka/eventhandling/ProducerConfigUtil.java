@@ -16,6 +16,13 @@
 
 package org.axonframework.kafka.eventhandling;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static org.axonframework.kafka.eventhandling.producer.ConfirmationMode.WAIT_FOR_ACK;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serializer;
@@ -23,14 +30,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.axonframework.kafka.eventhandling.producer.ConfirmationMode;
 import org.axonframework.kafka.eventhandling.producer.DefaultProducerFactory;
 import org.axonframework.kafka.eventhandling.producer.ProducerFactory;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.axonframework.kafka.eventhandling.producer.ConfirmationMode.WAIT_FOR_ACK;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 
 /**
  * Test util for generating {@link ProducerConfig}.
@@ -63,7 +63,7 @@ public class ProducerConfigUtil {
      * @param kafka the Kafka.
      * @return the configuration.
      */
-    public static Map<String, Object> minimal(KafkaEmbedded kafka) {
+    public static Map<String, Object> minimal(EmbeddedKafkaBroker kafka) {
         return minimal(kafka, StringSerializer.class);
     }
 
@@ -77,7 +77,7 @@ public class ProducerConfigUtil {
      * @param valueSerializer the serializer for <code>value</code> that implements {@link Serializer}.
      * @return the configuration.
      */
-    public static Map<String, Object> minimal(KafkaEmbedded kafka, Class valueSerializer) {
+    public static Map<String, Object> minimal(EmbeddedKafkaBroker kafka, Class valueSerializer) {
         Map<String, Object> configs = new HashMap<>();
         configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBrokersAsString());
         configs.put(ProducerConfig.RETRIES_CONFIG, 0);
@@ -99,7 +99,7 @@ public class ProducerConfigUtil {
      * @param kafka the Kafka.
      * @return the configuration.
      */
-    public static Map<String, Object> minimalTransactional(KafkaEmbedded kafka) {
+    public static Map<String, Object> minimalTransactional(EmbeddedKafkaBroker kafka) {
         return minimalTransactional(kafka, StringSerializer.class);
     }
 
@@ -113,7 +113,7 @@ public class ProducerConfigUtil {
      * @param valueSerializer the serializer for <code>value</code> that implements {@link Serializer}.
      * @return the configuration.
      */
-    public static Map<String, Object> minimalTransactional(KafkaEmbedded kafka, Class valueSerializer) {
+    public static Map<String, Object> minimalTransactional(EmbeddedKafkaBroker kafka, Class valueSerializer) {
         Map<String, Object> configs = minimal(kafka, valueSerializer);
         configs.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         configs.put(ProducerConfig.RETRIES_CONFIG, 1);
@@ -131,10 +131,10 @@ public class ProducerConfigUtil {
      * @param kafka the Kafka.
      * @return the producer factory.
      */
-    public static ProducerFactory<String, String> producerFactory(KafkaEmbedded kafka) {
+    public static ProducerFactory<String, String> producerFactory(EmbeddedKafkaBroker kafka) {
         return DefaultProducerFactory
                 .<String, String>builder(minimal(kafka))
-                .withCloseTimeout(100, MILLISECONDS)
+                .withCloseTimeout(100, MILLIS)
                 .build();
     }
 
@@ -150,11 +150,11 @@ public class ProducerConfigUtil {
      * @param valueSerializer The serializer for <code>value</code> that implements {@link Serializer}.
      * @return the producer factory.
      */
-    public static <V> ProducerFactory<String, V> ackProducerFactory(KafkaEmbedded kafka, Class valueSerializer) {
+    public static <V> ProducerFactory<String, V> ackProducerFactory(EmbeddedKafkaBroker kafka, Class valueSerializer) {
         return DefaultProducerFactory
                 .<String, V>builder(minimal(kafka, valueSerializer))
                 .withConfirmationMode(WAIT_FOR_ACK)
-                .withCloseTimeout(1000, MILLISECONDS)
+                .withCloseTimeout(1000, MILLIS)
                 .build();
     }
 
@@ -170,12 +170,12 @@ public class ProducerConfigUtil {
      * @param transactionalIdPrefix prefix for generating <code>transactional.id</code>.
      * @return the producer factory.
      */
-    public static ProducerFactory<String, String> txnProducerFactory(KafkaEmbedded kafka,
+    public static ProducerFactory<String, String> txnProducerFactory(EmbeddedKafkaBroker kafka,
                                                                      String transactionalIdPrefix) {
         return DefaultProducerFactory
                 .<String, String>builder(minimalTransactional(kafka))
                 .withTransactionalIdPrefix(transactionalIdPrefix)
-                .withCloseTimeout(100, MILLISECONDS)
+                .withCloseTimeout(100, MILLIS)
                 .build();
     }
 
@@ -191,13 +191,13 @@ public class ProducerConfigUtil {
      * @param valueSerializer       The serializer for <code>value</code> that implements {@link Serializer}.
      * @return the producer factory.
      */
-    public static <V> ProducerFactory<String, V> txnProducerFactory(KafkaEmbedded kafka,
+    public static <V> ProducerFactory<String, V> txnProducerFactory(EmbeddedKafkaBroker kafka,
                                                                     String transactionalIdPrefix,
                                                                     Class valueSerializer) {
         return DefaultProducerFactory
                 .<String, V>builder(minimalTransactional(kafka, valueSerializer))
                 .withTransactionalIdPrefix(transactionalIdPrefix)
-                .withCloseTimeout(100, MILLISECONDS)
+                .withCloseTimeout(100, MILLIS)
                 .build();
     }
 }

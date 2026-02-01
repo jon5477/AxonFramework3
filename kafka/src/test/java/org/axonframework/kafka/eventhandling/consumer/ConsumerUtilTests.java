@@ -15,25 +15,6 @@
 
 package org.axonframework.kafka.eventhandling.consumer;
 
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.axonframework.kafka.eventhandling.producer.ProducerFactory;
-import org.junit.*;
-import org.junit.runner.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
-import scala.collection.Seq;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static java.util.Collections.emptyMap;
 import static kafka.utils.TestUtils.pollUntilAtLeastNumRecords;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +22,29 @@ import static org.axonframework.kafka.eventhandling.ConsumerConfigUtil.consumerF
 import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.producerFactory;
 import static org.axonframework.kafka.eventhandling.consumer.ConsumerUtil.seek;
 import static org.springframework.kafka.test.utils.KafkaTestUtils.getRecords;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.axonframework.kafka.eventhandling.producer.ProducerFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import scala.collection.JavaConverters;
 
 /***
  * Tests for {@link ConsumerUtil}
@@ -57,7 +61,7 @@ public class ConsumerUtilTests {
 
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
-    private KafkaEmbedded kafka;
+    private EmbeddedKafkaBroker kafka;
 
     private ProducerFactory<String, String> pf;
 
@@ -121,10 +125,11 @@ public class ConsumerUtilTests {
         Consumer<?, ?> testSubject = consumerFactory(kafka, topic).createConsumer();
 
         seek(topic, testSubject, KafkaTrackingToken.newInstance(positions));
-        Seq<ConsumerRecord<byte[], byte[]>> records = pollUntilAtLeastNumRecords((KafkaConsumer<byte[], byte[]>) testSubject,
-                                                                                 26);
-        records.foreach(r -> assertThat(r.offset()).isGreaterThan(positions.get(r.partition())));
-        assertThat(records.count(x -> true)).isEqualTo(26);
+        List<ConsumerRecord<byte[], byte[]>> records = JavaConverters.seqAsJavaList(pollUntilAtLeastNumRecords((KafkaConsumer<byte[], byte[]>) testSubject,
+                                                                                 26,
+                                                                                 5000L));
+        records.forEach(r -> assertThat(r.offset()).isGreaterThan(positions.get(r.partition())));
+        assertThat(records.size()).isEqualTo(26);
 
         testSubject.close();
     }
@@ -143,14 +148,15 @@ public class ConsumerUtilTests {
         positions.put(4, 0L);
         Consumer<?, ?> testSubject = consumerFactory(kafka, topic).createConsumer();
         seek(topic, testSubject, KafkaTrackingToken.newInstance(positions));
-        pollUntilAtLeastNumRecords((KafkaConsumer<byte[], byte[]>) testSubject, 26);
+        pollUntilAtLeastNumRecords((KafkaConsumer<byte[], byte[]>) testSubject, 26, 5000L);
 
         publishNewRecords(topic, pf);
-        Seq<ConsumerRecord<byte[], byte[]>> records = pollUntilAtLeastNumRecords((KafkaConsumer<byte[], byte[]>) testSubject,
-                                                                                 4);
+        List<ConsumerRecord<byte[], byte[]>> records = JavaConverters.seqAsJavaList(pollUntilAtLeastNumRecords((KafkaConsumer<byte[], byte[]>) testSubject,
+                                                                                 4,
+                                                                                 5000L));
 
-        records.foreach(x -> assertThat(x.offset()).isEqualTo(10));
-        assertThat(records.count(x -> true)).isEqualTo(4);
+        records.forEach(x -> assertThat(x.offset()).isEqualTo(10));
+        assertThat(records).hasSize(4);
 
         testSubject.close();
     }

@@ -15,27 +15,6 @@
 
 package org.axonframework.kafka.eventhandling.producer;
 
-import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.KafkaException;
-import org.junit.*;
-import org.junit.runner.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.empty;
 import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.minimal;
@@ -46,7 +25,31 @@ import static org.axonframework.kafka.eventhandling.producer.ConfirmationMode.NO
 import static org.axonframework.kafka.eventhandling.producer.ConfirmationMode.TRANSACTIONAL;
 import static org.axonframework.kafka.eventhandling.producer.DefaultProducerFactory.builder;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.stream.IntStream;
+
+import org.apache.kafka.clients.consumer.ConsumerGroupMetadata;
+import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.junit.Assume;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Tests for {@link DefaultProducerFactory}.
@@ -64,7 +67,7 @@ import static org.mockito.Mockito.*;
 public class DefaultProducerFactoryTests {
 
     @Autowired
-    private KafkaEmbedded kafka;
+    private EmbeddedKafkaBroker kafka;
 
     @Test
     public void testDefaultConfirmationMode() {
@@ -83,7 +86,7 @@ public class DefaultProducerFactoryTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConfiguring_InvalidTimeout() {
-        builder(minimal(kafka)).withCloseTimeout(-1, TimeUnit.SECONDS).build();
+        builder(minimal(kafka)).withCloseTimeout(-1, ChronoUnit.SECONDS).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -173,7 +176,7 @@ public class DefaultProducerFactoryTests {
         cleanup(pf, producers);
     }
 
-    @Test(expected = KafkaException.class)
+    @Test(expected = IllegalStateException.class)
     public void testTransactionalProducerBehavior_OnCommittingAnAbortedTransaction() {
         Assume.assumeFalse("Transactional producers not supported on Windows",
                            System.getProperty("os.name").contains("Windows"));
@@ -190,7 +193,7 @@ public class DefaultProducerFactoryTests {
         }
     }
 
-    @Test(expected = KafkaException.class)
+    @Test(expected = IllegalStateException.class)
     public void testTransactionalProducerBehavior_OnSendingOffsetsWhenTransactionIsClosed() {
         Assume.assumeFalse("Transactional producers not supported on Windows",
                            System.getProperty("os.name").contains("Windows"));
@@ -198,7 +201,8 @@ public class DefaultProducerFactoryTests {
         Producer<String, String> producer = pf.createProducer();
         producer.beginTransaction();
         producer.commitTransaction();
-        producer.sendOffsetsToTransaction(Collections.emptyMap(), "foo");
+        producer.sendOffsetsToTransaction(Collections.emptyMap(), new ConsumerGroupMetadata("foo"));
+        producer.commitTransaction();
         cleanup(pf, producer);
     }
 

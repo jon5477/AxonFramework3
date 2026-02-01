@@ -55,7 +55,7 @@ public class DocumentPerEventStorageStrategy extends AbstractMongoEventStorageSt
 
     @Override
     protected Stream<Document> createEventDocuments(List<? extends EventMessage<?>> events, Serializer serializer) {
-        return events.stream().map(EventUtils::asDomainEventMessage).map(event -> new EventEntry(event, serializer))
+        return events.stream().map((EventMessage<?> e) -> EventUtils.asDomainEventMessage(e)).map(event -> new EventEntry(event, serializer))
                 .map(entry -> entry.asDocument(eventConfiguration()));
     }
 

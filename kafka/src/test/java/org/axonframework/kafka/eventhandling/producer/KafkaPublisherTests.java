@@ -16,6 +16,29 @@
 
 package org.axonframework.kafka.eventhandling.producer;
 
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.axonframework.kafka.eventhandling.ConsumerConfigUtil.transactionalConsumerFactory;
+import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.ackProducerFactory;
+import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.txnProducerFactory;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -39,30 +62,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.axonframework.kafka.eventhandling.ConsumerConfigUtil.transactionalConsumerFactory;
-import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.ackProducerFactory;
-import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.txnProducerFactory;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link KafkaPublisher}.
@@ -83,7 +87,7 @@ import static org.mockito.Mockito.*;
 public class KafkaPublisherTests {
 
     @Autowired
-    private KafkaEmbedded kafka;
+    private EmbeddedKafkaBroker kafka;
     private SimpleEventBus eventBus;
     private MessageCollector monitor;
 
@@ -231,7 +235,7 @@ public class KafkaPublisherTests {
             //expected
         }
 
-        assertTrue("Didn't expect any consumer records", KafkaTestUtils.getRecords(consumer, 100).isEmpty());
+        assertTrue("Didn't expect any consumer records", KafkaTestUtils.getRecords(consumer, Duration.ofMillis(100)).isEmpty());
 
         cleanup(pf, testSubject, consumer);
     }
@@ -278,7 +282,7 @@ public class KafkaPublisherTests {
         }
 
         Consumer<?, ?> consumer = consumer(topic);
-        assertTrue("Didn't expect any consumer records", KafkaTestUtils.getRecords(consumer, 100).isEmpty());
+        assertTrue("Didn't expect any consumer records", KafkaTestUtils.getRecords(consumer, Duration.ofMillis(100)).isEmpty());
         consumer.close();
         testSubject.shutDown();
     }
@@ -366,7 +370,7 @@ public class KafkaPublisherTests {
             uow.commit();
         } finally {
             Consumer<?, ?> consumer = consumer(topic);
-            assertTrue("Didn't expect any consumer records", KafkaTestUtils.getRecords(consumer, 100).isEmpty());
+            assertTrue("Didn't expect any consumer records", KafkaTestUtils.getRecords(consumer, Duration.ofMillis(100)).isEmpty());
             consumer.close();
             testSubject.shutDown();
         }

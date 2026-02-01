@@ -173,8 +173,8 @@ public abstract class AbstractMongoEventStorageStrategy implements StorageStrate
         for (MongoCursor<Document> iterator = cursor.iterator(); results.size() < batchSize && iterator.hasNext(); ) {
             Document document = iterator.next();
             extractEvents(document)
-                    .filter(ed -> previousToken.get() == null || !previousToken.get().getKnownEventIds().contains(ed.getEventIdentifier()))
-                    .map(event -> new TrackedMongoEventEntry<>(event, previousToken.updateAndGet(
+                    .filter((DomainEventData<?> ed) -> previousToken.get() == null || !previousToken.get().getKnownEventIds().contains(ed.getEventIdentifier()))
+                    .map((DomainEventData<?> event) -> new TrackedMongoEventEntry<>(event, previousToken.updateAndGet(
                             token -> token == null
                                     ? MongoTrackingToken.of(event.getTimestamp(), event.getEventIdentifier())
                                     : token.advanceTo(event.getTimestamp(), event.getEventIdentifier(), lookBackTime))))

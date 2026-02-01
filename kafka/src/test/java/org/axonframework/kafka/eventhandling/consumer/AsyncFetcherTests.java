@@ -15,6 +15,25 @@
 
 package org.axonframework.kafka.eventhandling.consumer;
 
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.axonframework.eventhandling.GenericEventMessage.asEventMessage;
+import static org.axonframework.kafka.eventhandling.ConsumerConfigUtil.consumerFactory;
+import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.producerFactory;
+import static org.axonframework.kafka.eventhandling.consumer.AsyncFetcher.builder;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -27,23 +46,10 @@ import org.axonframework.kafka.eventhandling.producer.ProducerFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BiFunction;
-
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.axonframework.eventhandling.GenericEventMessage.asEventMessage;
-import static org.axonframework.kafka.eventhandling.ConsumerConfigUtil.consumerFactory;
-import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.producerFactory;
-import static org.axonframework.kafka.eventhandling.consumer.AsyncFetcher.builder;
-import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link AsyncFetcher}
@@ -57,7 +63,7 @@ public class AsyncFetcherTests {
 
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
-    private KafkaEmbedded kafka;
+    private EmbeddedKafkaBroker kafka;
 
     private volatile KafkaTrackingToken currentToken;
 

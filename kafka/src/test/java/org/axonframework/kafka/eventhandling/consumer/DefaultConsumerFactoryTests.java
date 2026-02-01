@@ -16,24 +16,24 @@
 
 package org.axonframework.kafka.eventhandling.consumer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.axonframework.kafka.eventhandling.ConsumerConfigUtil.minimal;
+import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.producerFactory;
+
+import java.util.Collections;
+
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.axonframework.kafka.eventhandling.producer.ProducerFactory;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.axonframework.kafka.eventhandling.ConsumerConfigUtil.minimal;
-import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.producerFactory;
 
 /**
  * Tests for {@link org.axonframework.kafka.eventhandling.producer.DefaultProducerFactory}
@@ -46,7 +46,7 @@ import static org.axonframework.kafka.eventhandling.ProducerConfigUtil.producerF
 public class DefaultConsumerFactoryTests {
 
     @Autowired
-    private KafkaEmbedded kafka;
+    private EmbeddedKafkaBroker kafka;
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateConsumer_InvalidConfig() {
