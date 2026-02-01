@@ -46,6 +46,10 @@ public class SpringPrototypeAggregateFactory<T> implements AggregateFactory<T>, 
     private Class<T> aggregateType;
     private AggregateFactory<T> delegate;
 
+    public SpringPrototypeAggregateFactory() {
+        // added to prevent spring from autowiring this class
+    }
+
     public SpringPrototypeAggregateFactory(String prototypeBeanName) {
         this.prototypeBeanName = Objects.requireNonNull(prototypeBeanName);
     }
