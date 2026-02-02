@@ -53,7 +53,6 @@ public class CommandGatewayFactoryBean<T> implements FactoryBean<T>, Initializin
     private List<CommandCallback<?, ?>> commandCallbacks = new ArrayList<>();
     private T gateway;
     private Class<T> gatewayInterface;
-    
 
     public CommandGatewayFactoryBean(CommandBus commandBus) {
         this.commandBus = Objects.requireNonNull(commandBus);
