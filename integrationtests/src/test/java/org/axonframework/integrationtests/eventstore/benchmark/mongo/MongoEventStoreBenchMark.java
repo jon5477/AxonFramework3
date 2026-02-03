@@ -16,12 +16,13 @@
 
 package org.axonframework.integrationtests.eventstore.benchmark.mongo;
 
-import com.mongodb.MongoClient;
 import org.axonframework.integrationtests.eventstore.benchmark.AbstractEventStoreBenchmark;
 import org.axonframework.mongo.eventsourcing.eventstore.DefaultMongoTemplate;
 import org.axonframework.mongo.eventsourcing.eventstore.MongoEventStorageEngine;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.mongodb.client.MongoClient;
 
 /**
  * @author Jettro Coenradie

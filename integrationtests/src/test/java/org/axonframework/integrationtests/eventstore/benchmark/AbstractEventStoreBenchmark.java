@@ -1,9 +1,31 @@
 package org.axonframework.integrationtests.eventstore.benchmark;
 
+import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.createEvent;
+import static org.axonframework.serialization.MessageSerializer.serializeMetaData;
+import static org.axonframework.serialization.MessageSerializer.serializePayload;
+
+import java.text.DecimalFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.axonframework.common.AxonThreadFactory;
 import org.axonframework.common.transaction.NoTransactionManager;
 import org.axonframework.eventhandling.EventListener;
-import org.axonframework.eventhandling.*;
+import org.axonframework.eventhandling.EventMessage;
+import org.axonframework.eventhandling.EventProcessor;
+import org.axonframework.eventhandling.SimpleEventHandlerInvoker;
+import org.axonframework.eventhandling.TrackingEventProcessor;
 import org.axonframework.eventhandling.tokenstore.inmemory.InMemoryTokenStore;
 import org.axonframework.eventsourcing.eventstore.AbstractEventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
@@ -14,16 +36,6 @@ import org.axonframework.serialization.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StopWatch;
-
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static org.axonframework.eventsourcing.eventstore.EventStoreTestUtils.createEvent;
-import static org.axonframework.serialization.MessageSerializer.serializeMetaData;
-import static org.axonframework.serialization.MessageSerializer.serializePayload;
 
 /**
  * @author Rene de Waele
