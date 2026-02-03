@@ -16,59 +16,74 @@
 
 package org.axonframework.mongo.utils;
 
-import static org.mockito.Mockito.mock;
-
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.SocketFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.mongo.transitions.MongodStarter;
-import de.flapdoodle.embed.process.runtime.Network;
+import de.flapdoodle.embed.mongo.transitions.ImmutableMongod;
+import de.flapdoodle.embed.mongo.transitions.Mongod;
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.reverse.TransitionWalker;
+import de.flapdoodle.reverse.transitions.Start;
 
 /**
  * @author Allard Buijze
  */
 public class MongoLauncher {
 
-    public static final int MONGO_DEFAULT_PORT = 27017;
-    public static final String LOCALHOST = "127.0.0.1";
-    private static final Logger logger = LoggerFactory.getLogger(MongoLauncher.class);
-    private static final AtomicInteger counter = new AtomicInteger();
+	public static final int MONGO_DEFAULT_PORT = 27017;
+	public static final String LOCALHOST = "127.0.0.1";
+//    private static final Logger logger = LoggerFactory.getLogger(MongoLauncher.class);
+//    private static final AtomicInteger counter = new AtomicInteger();
 
-    private static boolean isMongoRunning() {
-        try {
-            final Socket mongoSocket = SocketFactory.getDefault().createSocket(LOCALHOST, MONGO_DEFAULT_PORT);
+	private static boolean isMongoRunning() {
+		try {
+			final Socket mongoSocket = SocketFactory.getDefault().createSocket(LOCALHOST, MONGO_DEFAULT_PORT);
 
-            if (mongoSocket.isConnected()) {
-                mongoSocket.close();
-                return true;
-            }
-        } catch(IOException e) {
-            return false;
-        }
-        return false;
-    }
+			if (mongoSocket.isConnected()) {
+				mongoSocket.close();
+				return true;
+			}
+		} catch (IOException e) {
+			return false;
+		}
+		return false;
+	}
 
-    public static MongodExecutable prepareExecutable() throws IOException {
+	public static TransitionWalker.ReachedState<RunningMongodProcess> startMongoDB() throws IOException {
         if (isMongoRunning()) {
-            return mock(MongodExecutable.class);
+            return null;
         }
 
-        MongodConfig mongodConfig = MongodConfig.builder()
-                .version(Version.Main.PRODUCTION) // latest stable MongoDB (6.x)
-                .net(MONGO_DEFAULT_PORT, Network.localhostIsIPv6())
-                .build();
+        ImmutableMongod mongodConfig = Mongod.builder()
+        		.net(Start.to(Net.class)
+        				.initializedWith(Net.defaults()
+        						.withPort(MONGO_DEFAULT_PORT)))
+        		.build();
+        Version.Main version = Version.Main.V7_0;
 
-        // Starter automatically picks correct binaries
-        MongodStarter starter = MongodStarter.getDefaultInstance();
+        return mongodConfig.start(version);
 
-        return starter.prepare(mongodConfig);
+//        IMongodConfig mongodConfig = new MongodConfigBuilder()
+//                .version(Version.Main.PRODUCTION)
+//                .net(new Net(MONGO_DEFAULT_PORT, false))
+//                .build();
+//
+//        Command command = Command.MongoD;
+//        IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
+//                .defaults(command)
+//                .artifactStore(new ArtifactStoreBuilder()
+//                        .defaults(command)
+//                        .download(new DownloadConfigBuilder()
+//                                .defaultsForCommand(command))
+//                        .executableNaming((prefix, postfix) -> prefix + "_axontest_" + counter.getAndIncrement() + "_" + postfix))
+//                .build();
+//
+//        MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
+//
+//        return runtime.prepare(mongodConfig);
     }
 }

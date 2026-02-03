@@ -58,8 +58,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.reverse.TransitionWalker;
 
 /**
  * @author Jettro Coenradie
@@ -69,8 +69,7 @@ import de.flapdoodle.embed.mongo.MongodProcess;
 public class MongoSagaStoreTest {
 
     private final static Logger logger = LoggerFactory.getLogger(MongoSagaStoreTest.class);
-    private static MongodProcess mongod;
-    private static MongodExecutable mongoExe;
+    private static TransitionWalker.ReachedState<RunningMongodProcess> mongod;
 
     @Autowired
     private MongoSagaStore sagaStore;
@@ -84,8 +83,7 @@ public class MongoSagaStoreTest {
 
     @BeforeClass
     public static void start() throws IOException {
-        mongoExe = MongoLauncher.prepareExecutable();
-        mongod = mongoExe.start();
+        mongod = MongoLauncher.startMongoDB();
         if (mongod == null) {
             // we're using an existing mongo instance. Make sure it's clean
             org.axonframework.mongo.eventsourcing.eventstore.DefaultMongoTemplate template = new org.axonframework.mongo.eventsourcing.eventstore.DefaultMongoTemplate(MongoClients.create());
@@ -97,10 +95,7 @@ public class MongoSagaStoreTest {
     @AfterClass
     public static void shutdown() {
         if (mongod != null) {
-            mongod.stop();
-        }
-        if (mongoExe != null) {
-            mongoExe.stop();
+            mongod.close();
         }
     }
 

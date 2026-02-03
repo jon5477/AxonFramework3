@@ -56,8 +56,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.reverse.TransitionWalker;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:META-INF/spring/mongo-context.xml"})
@@ -66,8 +66,7 @@ public class MongoTokenStoreTest {
     private MongoTokenStore tokenStore;
     private MongoTokenStore tokenStoreDifferentOwner;
 
-    private static MongodExecutable mongoExe;
-    private static MongodProcess mongod;
+    private static TransitionWalker.ReachedState<RunningMongodProcess> mongod;
 
     private MongoTemplate mongoTemplate;
     private MongoCollection<Document> trackingTokensCollection;
@@ -84,17 +83,13 @@ public class MongoTokenStoreTest {
 
     @BeforeClass
     public static void startMongoDB() throws Exception {
-        mongoExe = MongoLauncher.prepareExecutable();
-        mongod = mongoExe.start();
+        mongod = MongoLauncher.startMongoDB();
     }
 
     @AfterClass
     public static void stopMongoDB() {
         if (mongod != null) {
-            mongod.stop();
-        }
-        if (mongoExe != null) {
-            mongoExe.stop();
+            mongod.close();
         }
     }
 

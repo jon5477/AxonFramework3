@@ -107,9 +107,9 @@ public class MongoFactory {
         if (writeConcern != null) {
             return this.writeConcern;
         } else if (mongoAddresses.size() > 1) {
-            return WriteConcern.W2;
+            return WriteConcern.MAJORITY;
         } else {
-            return WriteConcern.JOURNALED;
+            return new WriteConcern(1).withJournal(true);
         }
     }
 }

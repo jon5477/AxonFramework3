@@ -43,7 +43,13 @@
         <property name="mongoOptions">
             <bean factory-bean="mongoOptionsFactory" factory-method="createMongoOptions"/>
         </property>
-        <property name="writeConcern" value="JOURNALED"/>
+        <property name="writeConcern">
+            <bean class="com.mongodb.WriteConcern">
+                <constructor-arg name="w"><null/></constructor-arg>
+                <constructor-arg name="wTimeoutMS"><null/></constructor-arg>
+                <constructor-arg name="journal" value="true"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="mongoOptionsFactory" class="org.axonframework.mongo.eventsourcing.eventstore.MongoOptionsFactory">

@@ -57,8 +57,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
 
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
+import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
+import de.flapdoodle.reverse.TransitionWalker;
 
 
 /**
@@ -70,24 +70,19 @@ public class MongoEventStorageEngineTest_DocPerCommit extends AbstractMongoEvent
 
     private static final Logger logger = LoggerFactory.getLogger(MongoEventStorageEngineTest_DocPerCommit.class);
 
-    private static MongodExecutable mongoExe;
-    private static MongodProcess mongod;
+    private static TransitionWalker.ReachedState<RunningMongodProcess> mongod;
 
     private MongoEventStorageEngine testSubject;
 
     @BeforeClass
     public static void start() throws IOException {
-        mongoExe = MongoLauncher.prepareExecutable();
-        mongod = mongoExe.start();
+        mongod = MongoLauncher.startMongoDB();
     }
 
     @AfterClass
     public static void shutdown() {
         if (mongod != null) {
-            mongod.stop();
-        }
-        if (mongoExe != null) {
-            mongoExe.stop();
+            mongod.close();
         }
     }
 
