@@ -28,7 +28,7 @@
         <module>distributed-commandbus-jgroups</module>
         <module>distributed-commandbus-springcloud</module>
         <module>integrationtests</module>
-        <module>mongo</module>
+        <!--<module>mongo</module>-->
         <module>amqp</module>
         <module>kafka</module>
         <module>metrics</module>

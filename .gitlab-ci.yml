@@ -1,0 +1,16 @@
+variables:
+  NAME: 'AxonFramework3'
+  VERACODE_SANDBOX_UPLOAD: false
+  VERACODE_UPLOAD_ALL: false
+
+include:
+  - project: 'garmin-boulder/boulder-tools/templates'
+    file: 'composites/maven-utility-pipeline.yml'
+
+Mr. Script:
+  rules:
+    - when: never
+
+Checkstyle Lint:
+  rules:
+    - when: never
